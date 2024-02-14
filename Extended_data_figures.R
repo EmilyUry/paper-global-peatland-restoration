@@ -37,7 +37,7 @@ names(LU.labs) <- (c("Wetland", "Ag", "Forest", "Peatx", "Rice", "Rewetted"))
 
 
 ## Truncated yaxis
-p <- ggplot(df, aes(x = CZ, y = CO2e, fill = CZ)) +
+p <- ggplot(df, aes(x = CZ, y = CO2e/10^6, fill = CZ)) +
   geom_bar(stat = "identity") +
   facet_grid(GHG~LU, labeller = labeller(LU = LU.labs)) +
   theme_bw(base_size = 9) +
@@ -46,10 +46,10 @@ p <- ggplot(df, aes(x = CZ, y = CO2e, fill = CZ)) +
   scale_fill_manual(values = c( "aquamarine3" , "darkgreen", "#abababee")) +
   geom_hline(yintercept = 0, linewidth = 0.1) +
   xlab(" ") +
-  ylab(expression(Emissions~CO[2]*eq~kg~km^{-2}~year^{-1})) +
-  scale_y_continuous(breaks = c(0, 2000000, 4000000), labels = c(0, "2e6", "4e6")) +
-  geom_errorbar(aes(x = CZ, ymin = CO2e-CO2e_SD, ymax = CO2e+CO2e_SD), width = 0.2, linewidth = 0.2) +
-  coord_flip(ylim = c(-800000, 5900000)) 
+  ylab(expression(Emissions~CO[2]*eq~kg~m^{-2}~year^{-1})) +
+  scale_y_continuous(breaks = c(0, 2, 4, 6), labels = c("0", "2", "4", "6")) +
+  geom_errorbar(aes(x = CZ, ymin = CO2e/10^6-CO2e_SD/10^6, ymax = CO2e/10^6+CO2e_SD/10^6), width = 0.2, linewidth = 0.2) +
+  coord_flip(ylim = c(-0.800000, 5.900000)) 
 
 top <- plot_grid(NULL, NULL, NULL, NULL, NULL,  ncol = 5, rel_widths = c(1, 1, 1, 1,1), label_size = 8,
                  labels = c("                Intact", "     | ",  "        Drained", "                            |", "  Rewetted"))
