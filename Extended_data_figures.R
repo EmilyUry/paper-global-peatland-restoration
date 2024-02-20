@@ -97,7 +97,8 @@ pal <- c("#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
 options(scipen = 9999)
 S1A <- ggplot() +
   geom_tile(data = data[!is.na(data$cuts),], aes(x= x, y = y, fill = cuts)) +
-  scale_fill_manual(values = pal, na.value = "#00000000")+
+  scale_fill_manual(values = pal, na.value = "#00000000", labels = c("0 - 0.1", "0.1 - 1", 
+                                                                     "1 - 10", "10 - 100", "> 100"))+
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 9) +
@@ -112,7 +113,8 @@ data$cuts2 <- cut(data$WL_re, breaks = c(0, 0.1, 1, 10, 100, 1000))
 
 S1B <- ggplot() +
   geom_tile(data = data[!is.na(data$cuts2),], aes(x= x, y = y, fill = cuts2)) +
-  scale_fill_manual(values = pal, na.value = "#00000000")+
+  scale_fill_manual(values = pal, na.value = "#00000000",labels = c("0 - 0.1", "0.1 - 1", 
+                                                                   "1 - 10", "10 - 100", "> 100"))+
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 9) +
@@ -122,7 +124,7 @@ S1B <- ggplot() +
   theme(legend.position = c(0.12,0.3), legend.key.size = unit(0.18, "in"),
         plot.margin = margin(t = -0.1, r = 0.1, b = -0.2, l = 0.1, unit = "in"))
 
-plot_grid(S1A, S1B, ncol = 1, labels = c("a", "b"))
+plot_grid(S1A, S1B, ncol = 1, labels = c("a", "b"), label_size = 11)
 
 ggsave(filename = "Figures/Extended_Figures/Drained_peatland.png",
        plot = last_plot(), bg = "white",
@@ -151,7 +153,7 @@ CZ <- ggplot() +
   ylab(" ") +
   theme_bw(base_size = 9) +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.15,0.4), legend.key.height = unit(0.18, "in"),
+  theme(legend.position = c(0.1,0.4), legend.key.height = unit(0.18, "in"),
         legend.key.width = unit(0.15, "in"),
         legend.background = element_rect(fill="#FFFFFF"),
         plot.margin = margin(t = -0.1, r = 0.1, b = -0.3, l = 0.1, unit = "in")) +
@@ -167,7 +169,8 @@ pal <- c("#f7f7f7", "#fee0b6", "#fdb863", "#e08214", "#b35806")
 
 NF <- ggplot() +
   geom_tile(data = data[!is.na(data$cuts),], aes(x= x, y = y, fill = cuts)) +
-  scale_fill_manual(values = pal, na.value = "#00000000")+
+  scale_fill_manual(values = pal, na.value = "#00000000", labels = c("0 - 5", "5 - 25", "25 - 50",
+                                                                     "50 - 100", "> 100"))+
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 9) +
@@ -188,7 +191,8 @@ pal <- c("#f7f7f7", "#abdda4", "#66c2a5", "#3288bd", "#5e4fa2")
 
 FR <- ggplot() +
   geom_tile(data = data[!is.na(data$cuts),], aes(x= x, y = y, fill = cuts)) +
-  scale_fill_manual(values = pal, na.value = "#00000000")+
+  scale_fill_manual(values = pal, na.value = "#00000000", labels = c("0 - 20", "20 - 40", "40 - 60",
+                                                                     "60 - 80", "80 - 100"))+
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 9) +
@@ -201,7 +205,7 @@ FR <- ggplot() +
 
 
 
-plot_grid(CZ, NF, FR, ncol = 1, labels = c("a", "b", "c"))
+plot_grid(CZ, NF, FR, ncol = 1, labels = c("a", "b", "c"), label_size = 11)
 
 ggsave(filename = "Figures/Extended_Figures/Aux_data_inputs.png",
        plot = last_plot(), bg = "white",
@@ -528,7 +532,8 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
 
 {
   data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
-  MC_SGWP100 <- read.csv("Data_sources/Extracted_datafiles/MC_Rewet.csv")
+  MC_SGWP20 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP20.csv")
+  MC_SGWP100 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP100.csv")
   
   
   
@@ -765,7 +770,8 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
     xlab("Drained peatland restored (%)") +
     geom_hline(yintercept = 0, linetype = 2) +
     theme(legend.position = c(0.3, 0.2), legend.text = element_text(size = 7),
-          legend.title = element_blank())
+          legend.title = element_blank(),
+          plot.margin = margin(t = 0.45, r = 0.2, b = 0.05, l = 0, unit = "in"))
   
   
   
@@ -801,16 +807,17 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   filter <- sort[!is.na(sort$map),]
   
   bottom.map <- ggplot() +
-    geom_tile(data = filter, aes(x= x, y = y, fill = as.factor(map))) +
+    geom_tile(data = filter, aes(x= x, y = y, height=0.7, width=0.7, fill = as.factor(map))) +
     scale_fill_manual(values = c( "#ababab66", "#b31722", "#578e9c"), na.value = "#00000000",
-                      labels = c("Strong cooling\nboth time horzons\n", "Strong cooling on \n100 year time horizon only\n", "Strong cooling on \n20 year time horizon only\n")) +
+                      labels = c("Minimize emissions,\nboth time horzons", "Minimize emissions, \n100-year time horizon only", "Minimize emissions, \n20-year time horizon only")) +
     xlab(" ") +
     ylab(" ") +
     theme_bw(base_size = 9) +
     geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-    theme(legend.position = c(0.15,0.4), legend.key.height = unit(0.15, "in"),
-          legend.key.width = unit(0.15, "in"),
+    theme(legend.position = c(0.15,0.4), legend.key.height = unit(0.2, "in"),
+          legend.key.width = unit(0.2, "in"), legend.spacing.y = unit(0.07, 'in'),
           legend.background = element_rect(fill="#FFFFFF00")) +
+    guides(fill = guide_legend(byrow = TRUE))+
     labs(fill = " ") 
   
 
@@ -914,9 +921,6 @@ ggsave(filename = "Figures/Extended_Figures/Top_restoration_areas.png",
        unit = "in",
        dpi = 300)
 
-}
-
-
 
 ### Recent drained only
 
@@ -952,12 +956,12 @@ table(sort$GWP100.25)
         plot.margin = margin(t = -0.1, r = 0.1, b = -0.3, l = 0.1, unit = "in")) +
   labs(fill = "Peatland \nrestored") +
   annotate("label", x = 20, y = -80, size = 2.5, label = "Drained post-2010")
-
+}
   
   
   
 #### Map - difference in wetland methane emissions 2020-2099
-
+{
 data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
 
 output <- data
@@ -970,7 +974,9 @@ pal <- c("#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6
 
 ggplot() +
   geom_tile(data = output, aes(x= x, y = y, fill = cuts)) +
-  scale_fill_manual(values = pal, na.value = "#00000000")+
+  scale_fill_manual(values = pal, na.value = "#00000000", 
+                    labels = c("< -10", "-10 to -1", "-1 to -0.1", 
+                               "-0.1 to 0.1", "0.1 to 1", "1 to 10", "> 10"))+
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 8) +
@@ -989,3 +995,6 @@ ggsave(filename = "Figures/Extended_Figures/Methane_feedback_map.png",
        height = 2.67, 
        unit = "in",
        dpi = 600)
+
+
+}
