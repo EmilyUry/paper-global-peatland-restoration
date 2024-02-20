@@ -46,6 +46,7 @@ write.csv(summary.table, "Data_sources/Extracted_datafiles/Scenario_summary.csv"
 
 ### Figure SGWP20 vs Random + Drained post 2010 vs Random
 
+{
 output <- data %>%
   dplyr::select(x, y, peatlands, peatland_loss)
 output <- cbind(output, MC_SGWP20)
@@ -262,23 +263,27 @@ plot4
 options(scipen = 99)
 
 plot_grid(plotx, plot4, ncol = 2, labels = c("a", "b"), label_size = 11)
+plot_grid(plotx, plot4, ncol = 2, rel_widths = c(1, 1.05),
+          labels = c("a", "b"), label_size = 11)
 
 ggsave(filename = "Figures/S1_SGWP20_S4_2010.png",
-       plot = last_plot(),
+       plot = last_plot(),  bg = "white",
        width = 6, 
        height = 3, 
        unit = "in",
        dpi = 300)
 
-
+}
 
 
 #####################################################
  
-## multi-objective comparison (figure 4)
+## multi-objective comparison (figure 3)
  
 #####################################################
 
+
+{
 ## Carbon first 
 output <- data %>%
  dplyr::select(x, y, peatlands, peatland_loss)
@@ -453,7 +458,7 @@ FIG.C <- ggplot(fig.c, aes(x = percent, y = val)) +
   annotate("text", x = 30, y = 0.5, size = 3, col = "#54246b", label = "Future methane")
 
 top <- plot_grid(FIG.A, FIG.B, FIG.C, ncol = 3, 
-          labels = c('a', 'b', 'c'), label_size = 12)
+          labels = c('a', 'b', 'c'), label_size = 10.5)
 top
 
 
@@ -622,7 +627,8 @@ bottom <- ggplot(bplot, aes(x = percent_restore, y = net_emissions, fill = strat
   geom_boxplot( fatten = 0.5, lwd = 0.2, outlier.size = 0.5) +
   theme_bw(base_size = 9) +
   #scale_fill_viridis(discrete = TRUE, option = "viridis") +
-  scale_fill_manual(values = pal) +
+  scale_fill_manual(values = pal, labels = c("Climate first", "Future methane", "Nitrogen first",
+                                             "Flood risk first", "Random")) +
   xlab("Peatland restored") +
   ylab(bquote("GHG emissions (Pg CO"[2]*"eq. yr"^{-1}*")")) +
   geom_hline(yintercept = 0, linetype = 2, lwd = 0.2) +
@@ -636,7 +642,7 @@ bottom
 
 
 plot_grid(top, bottom, labels = c(" ", "d"), nrow = 2, rel_heights = c(1.1,1), 
-          label_y = 1.1, label_size = 12)
+          label_y = 1.1, label_size = 11)
 
 
 ggsave(filename = "Figures/Multi-objective-compare.png",
@@ -710,9 +716,17 @@ summary <- as.data.frame(t(matrix(c("median, climate first, 10%", median.10p.cli
                  "Climate first minus n first, percent difference", percent.dif.CF.NF), nrow = 2)))
 
 
+}
+
+
+
+
 
 #### map of top priorities for each objective
 ## where are the top 25 % of N use, flood risk, and climate benefit from restoration
+
+
+{
 
 output <- data %>%
   dplyr::select(x,y,peatlands, peatland_loss, N_fert, flood)
@@ -721,6 +735,7 @@ output$norm <- output$mean_MC/output$peatland_loss   ## emissions in kg CO2e/km2
 
 #### CARBON FIRST
 df <- output
+
 sort <- arrange(df, norm)
 sort$cum_area <- cumsum(sort$peatland_loss)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
@@ -743,27 +758,29 @@ sort$intersect <- ifelse(sort$carbon.top == 1 & sort$flood.top == 1 & sort$fert.
                           ifelse(sort$fert.top == 1 & sort$carbon.top == 1 , 1,
                                  ifelse(sort$flood.top == 1 & sort$carbon.top == 1 , 2, NA)))
 map.filter <- sort[!is.na(sort$intersect),]
+
 map.top <- ggplot() +
-  geom_tile(data = map.filter, aes(x= x, y = y, fill = as.factor(intersect))) +
+  geom_tile(data = map.filter, aes(x= x, y = y, height=0.8, width=0.8, fill = as.factor(intersect))) +
   scale_fill_manual(values = c("#f0d72b" , "#578e9c","#b31722" ), na.value = "#00000000",
                     labels = c("Nitrogen + Climate", "Flood + Climate", "All three")) +
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 6) +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.15,0.4), legend.key.height = unit(0.15, "in"),
-        legend.key.width = unit(0.15, "in"),
+  theme(legend.position = c(0.13,0.4), legend.key.height = unit(0.13, "in"),
+        legend.key.width = unit(0.13, "in"), legend.spacing.y = unit(0.07, 'in'),
         legend.background = element_rect(fill="#FFFFFF00")) +
+  guides(fill = guide_legend(byrow = TRUE))+
   labs(fill = " ") 
 
 ## metrics
 table(map.filter$intersect)
-# 1 = both fertilizer and climate #447
-# 2 = both flood and climate #2124
-# 3 = all three
+# 1 = both fertilizer and climate #447 ##327
+# 2 = both flood and climate #681
+# 3 = all three  ## 191
 2124/447
 
-
+681/327
 
 
 
@@ -774,39 +791,76 @@ output <- data %>%
   dplyr::select(x,y,peatlands, peatland_loss, CH4_feedback)
 output$mean_MC <- rowMeans(MC_SGWP20)     ## emissions in kg CO2e/year/gridcell
 output$norm <- output$mean_MC/output$peatland_loss   ## emissions in kg CO2e/km2/yr
+output$mean_MC_2099 <- rowMeans(MC_2099)     ## emissions in kg CO2e/year/gridcell
+output$norm_2099 <- output$mean_MC_2099/output$peatland_loss  
+
 df <- output
 
-## climate in 20 years
+## emissions in 20 years
 sort <- arrange(df, norm)
 sort$cum_area <- cumsum(sort$peatland_loss)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
 sort$carbon.top <- ifelse(sort$running_percent < 25, 1, 0)
 
-## climate in 2099
-sort <- arrange(sort, CH4_feedback)
+### not this version
+{
+# ## methane growth
+# sort <- arrange(sort, CH4_feedback)
+# sort$cum_area <- cumsum(sort$peatland_loss)
+# sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
+# sort$feedback.top <- ifelse(sort$running_percent < 25, 1, 0)
+# 
+# sort$intersect <- ifelse(sort$carbon.top == 1 & sort$feedback.top == 1, 1,
+#                          ifelse(sort$carbon.top == 1 , 3,
+#                                 ifelse(sort$feedback.top == 1 , 2, NA)))
+# 
+# 
+# 
+# 
+# table(sort$intersect)
+# 
+# filter <- sort[!is.na(sort$intersect),]
+# 
+# map.bottom <- ggplot() +
+#   geom_tile(data = filter, aes(x= x, y = y, fill = as.factor(intersect))) +
+#   scale_fill_manual(values = c( "#dedede", "#54246b", "#666666"), na.value = "#00000000",
+#                     labels = c("Minimize emissions, \nboth timelines", "Minimize future emissions", "Minimize near-term \nemissions")) +
+#   xlab(" ") +
+#   ylab(" ") +
+#   theme_bw(base_size = 6) +
+#   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+#   theme(legend.position = c(0.155,0.4), legend.key.height = unit(0.12, "in"),
+#         legend.key.width = unit(0.12, "in"), legend.spacing.y = unit(0.07, 'in'),
+#         legend.background = element_rect(fill="#FFFFFF00")) +
+#   guides(fill = guide_legend(byrow = TRUE))+
+#   labs(fill = " ") 
+}
+
+
+
+## emissions in 2099
+sort <- arrange(sort, norm_2099)
 sort$cum_area <- cumsum(sort$peatland_loss)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$feedback.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$future.top <- ifelse(sort$running_percent < 25, 1, 0)
 
-sort$intersect <- ifelse(sort$carbon.top == 1 & sort$feedback.top == 1, 1,
+sort$intersect <- ifelse(sort$carbon.top == 1 & sort$future.top == 1, 1,
                          ifelse(sort$carbon.top == 1 , 3,
-                                ifelse(sort$feedback.top == 1 , 2, NA)))
-
+                                ifelse(sort$future.top == 1 , 2, NA)))
 table(sort$intersect)
-
 filter <- sort[!is.na(sort$intersect),]
-
 map.bottom <- ggplot() +
-  geom_tile(data = filter, aes(x= x, y = y, fill = as.factor(intersect))) +
-  scale_fill_manual(values = c( "#cdcdcd", "#666666", "#54246b"), na.value = "#00000000",
-                    labels = c("No change", "Prioritize", "Deprioritize")) +
+  geom_tile(data = filter, aes(x= x, y = y, height=1.2, width=1.2, fill = as.factor(intersect))) +   ### exagerated pixel size for visual clarity
+  scale_fill_manual(values = c( "#dedede55", "#54246b", "#454545"), na.value = "#00000000",
+                    labels = c("Minimize emissions,\nboth timelines", "Minimize future \nemissions", "Minimize near-term \nemissions")) +
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 6) +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.11,0.4), legend.key.height = unit(0.15, "in"),
-        legend.key.width = unit(0.15, "in"),
+  theme(legend.position = c(0.14,0.4), legend.key.height = unit(0.13, "in"),
+        legend.key.width = unit(0.13, "in"), legend.spacing.y = unit(0.07, 'in'),
         legend.background = element_rect(fill="#FFFFFF00")) +
+  guides(fill = guide_legend(byrow = TRUE))+
   labs(fill = " ") 
 
 
@@ -815,14 +869,14 @@ plot_grid(map.top, map.bottom, nrow = 2, labels = c("a", "b"), label_size = 11)
 
 ggsave(filename = "Figures/Multi-objective-maps.png",
        plot = last_plot(), bg = "white",
-       width = 3, 
-       height = 2.9, 
+       width = 3.5, 
+       height = 3.4, 
        unit = "in",
-       dpi = 600)
+       dpi = 300)
 
 
 
-
+}
 
 
 
