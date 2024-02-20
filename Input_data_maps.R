@@ -103,7 +103,7 @@ data$CH4_Wetland <- data$CH4_Zhang_2020     ### the spatial explicit value with 
 }
 
 
-##### FIGURE 1 -- GWP 20
+##### EXTENDED DATA FIGURE 1 -- maps of all data inputs GWP 20
 
 {
 ### masked to areas of wetlands loss only 
@@ -323,6 +323,9 @@ DRAINED_GWP20 <- ggplot() +
 
 
 
+ 
+
+
 data$REWET_GWP20 <- data$peatland_loss*(data$CO2_Rewetted + data$CH4_Rewetted*96 + data$N2O_Rewetted*250)  #(Kg CO2e/grid cell)
 sum(data$REWET_GWP20)/10^12
 
@@ -398,7 +401,9 @@ legend.plot <- ggplot() +
   ylab(" ") +
   theme_bw(base_size = 9) +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  scale_fill_manual(values = pal, na.value = "#00000000")+
+  scale_fill_manual(values = pal, na.value = "#00000000",
+                    labels = c("< -100", "-100 to -10", "-10 to -1", "-1 to -0.0001", "-0.0001 to 0.001",
+                               "0.001 to 1", "1 to 10", "10 to 100", "100-1000", ">1000"))+
   theme(legend.position = c(0.5,0.5), legend.direction="horizontal",
         legend.title = element_blank(), 
         legend.key.size = unit(0.16, "in"),
@@ -422,7 +427,7 @@ ggsave(filename = "Figures/All_inputs_grid.png",
 
 }
 
-##### EXTENDED DATA FIG. 1 (same as fig 1, but for GWP100)
+##### EXTENDED DATA FIG. X (same as fig 1, but for GWP100)
 
 {
   ### masked to areas of wetlands loss only 
@@ -735,15 +740,57 @@ ggsave(filename = "Figures/All_inputs_grid.png",
 
 
 
-##### net restoration maps (Fig 2) - GWP20)
+##### net restoration maps (Fig 1) - GWP20)
+
 {
+  
+  summary(data$DRAINED_GWP20/10^6)
+  data$cuts <- cut(data$DRAINED_GWP20/10^6, breaks = c(0, 0.01, 1, 10, 100, 1000, Inf))
+  table(data$cuts)
+  pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
+  
+  
+  DRAINED_GWP20.v2 <- ggplot() +
+    geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("0 to 0.01",
+                                 "0.01 to 1", "1 to 10", "10 to 100", "100-100", ">1000"))+
+    labs(fill = bquote("CO"[2]*"eq. Gg yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = "none", legend.key.height = unit(0.13, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained")  
+  
+  
 data$net.restore <- data$RESTORE_GWP20 - data$DRAINED_GWP20   #(Kg CO2e/grid cell)
 summary(data$net.restore/10^6)
 data$cuts <- cut(data$net.restore/10^6, breaks = c(-Inf, -100, -10, -1, -0.01, 
-                                                   0.01, 1, 10, 100, Inf))
+                                                   0.01, 1, 10, 100, 1000, Inf))
 table(data$cuts)
-pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b")
-
+pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
+#pal2 <- c("#2166ac", "#fddbc7", "#4393c3", '#f4a582',  '#92c5de',"#d6604d", "#d1e5f0", "#b2182b", "#e7e7e7", '#67001f')
+legend.plot <- ggplot() +
+  geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
+  xlab(" ") +
+  ylab(" ") +
+  theme_bw(base_size = 7) +
+  geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+  scale_fill_manual(values = pal, na.value = "#00000000",
+                    labels = c("< -100", "-100 to -10", "-10 to -1", "-1 to -0.01", "-0.01 to 0.01",
+                               "0.01 to 1", "1 to 10", "10 to 100", "100-1000", ">1000"))+
+  labs(fill = bquote("GHG emissions (CO"[2]*"eq. Gg yr"^-1*")"))+
+  theme(legend.position = c(0.525,0.5), legend.direction="horizontal",
+        legend.title = element_text(size = 8, hjust = 0.5, face = "bold"), 
+        legend.key.size = unit(0.11, "in"),
+        plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+        axis.title = element_text(size = 10, face = 'bold'),
+        plot.margin = margin(t = -0.5, r = 0.3, b = -0.6, l = 1, unit = "in")) +
+  guides(fill = guide_legend(ncol = 5, title.position = "top"))
 
 map.restore <- ggplot() +
   geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
@@ -753,15 +800,12 @@ map.restore <- ggplot() +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
   scale_fill_manual(values = pal, na.value = "#00000000",
                     labels = c("< -100", "-100 to -10", "-10 to -1", "-1 to -0.01", "-0.01 to 0.01",
-                               "0.01 to 1", "1 to 10", "10 to 100", "100+"))+
+                               "0.01 to 1", "1 to 10", "10 to 100", "100-1000", ">1000"))+
   labs(fill = bquote("CO"[2]*"eq. Gg yr"^-1))+
   theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
         axis.title = element_text(size = 10, face = 'bold'),
-        legend.position = c(0.1,0.35), legend.key.height = unit(0.13, "in"),
-        plot.margin = margin(t = -0.2, r = 0.1, b = -0.5, l = 0.1, unit = "in")) +
-  annotate(geom = "text", x = -160, y = 36, 
-           label = "GHG emissions", fontface = "bold",
-           size = 2.5) +
+        legend.position = "none", legend.key.height = unit(0.13, "in"),
+        plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
   annotate("label", x = 20, y = -80, size = 2.5, label = "End point: Intact")
 
 
@@ -770,9 +814,9 @@ map.restore <- ggplot() +
 data$net.rewet <- data$REWET_GWP20 - data$DRAINED_GWP20   #(Kg CO2e/grid cell)
 summary(data$net.rewet/10^6)
 data$cuts <- cut(data$net.rewet/10^6, breaks = c(-Inf, -100, -10, -1, -0.01, 
-                                                   0.01, 1, 10, 100, Inf))
+                                                   0.01, 1, 10, 100, 1000, Inf))
 table(data$cuts)
-pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b")
+pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
 
 
 map.rewet <- ggplot() +
@@ -783,25 +827,25 @@ map.rewet <- ggplot() +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
   scale_fill_manual(values = pal, na.value = "#00000000",
                     labels = c("< -100", "-100 to -10", "-10 to -1", "-1 to -0.01", "-0.01 to 0.01",
-                               "0.01 to 1", "1 to 10", "10 to 100", "100+"))+
+                               "0.01 to 1", "1 to 10", "10 to 100", "100-1000", ">1000"))+
   labs(fill = bquote("CO"[2]*"eq. Gg yr"^-1))+
   theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
         axis.title = element_text(size = 10, face = 'bold'),
-        legend.position = c(0.1,0.35), legend.key.height = unit(0.13, "in"),
-        plot.margin = margin(t = -0.2, r = 0.1, b = -0.5, l = 0.1, unit = "in")) +
-  annotate(geom = "text", x = -160, y = 36, 
-           label = "GHG emissions", fontface = "bold",
-           size = 2.5) +
+        legend.position = "none", legend.key.height = unit(0.13, "in"),
+        plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
   annotate("label", x = 20, y = -80, size = 2.5, label = "End point: Rewetted")
 
 
-plot_grid(map.rewet, map.restore,  ncol = 1,
-          labels = c("a", "b"), label_size = 11)
+legend <- cowplot::get_legend(legend.plot)
 
-ggsave(filename = "Figures/Net-emission-RESTORE.png",
+plot_grid(DRAINED_GWP20.v2, map.rewet, map.restore, legend, ncol = 1, 
+          rel_heights = c(1,1,1,0.4),
+          labels = c("a", "b", "c"), label_size = 11)
+
+ggsave(filename = "Figures/Drained-Rewetted-Restored.png",
        plot = last_plot(), bg = "white",
-       width = 5, 
-       height = 5.0, 
+       width = 3.5, 
+       height = 5.8, 
        unit = "in",
        dpi = 300)
 
