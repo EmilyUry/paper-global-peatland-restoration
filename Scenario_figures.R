@@ -765,10 +765,10 @@ map.top <- ggplot() +
                     labels = c("Nitrogen + Climate", "Flood + Climate", "All three")) +
   xlab(" ") +
   ylab(" ") +
-  theme_bw(base_size = 6) +
+  theme_bw(base_size = 10) +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.13,0.4), legend.key.height = unit(0.13, "in"),
-        legend.key.width = unit(0.13, "in"), legend.spacing.y = unit(0.07, 'in'),
+  theme(legend.position = c(0.13,0.4), legend.key.height = unit(0.2, "in"),
+        legend.key.width = unit(0.2, "in"), legend.spacing.y = unit(0.07, 'in'),
         legend.background = element_rect(fill="#FFFFFF00")) +
   guides(fill = guide_legend(byrow = TRUE))+
   labs(fill = " ") 
@@ -855,22 +855,22 @@ map.bottom <- ggplot() +
                     labels = c("Minimize emissions,\nboth timelines", "Minimize future \nemissions", "Minimize near-term \nemissions")) +
   xlab(" ") +
   ylab(" ") +
-  theme_bw(base_size = 6) +
+  theme_bw(base_size = 10) +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.14,0.4), legend.key.height = unit(0.13, "in"),
-        legend.key.width = unit(0.13, "in"), legend.spacing.y = unit(0.07, 'in'),
+  theme(legend.position = c(0.14,0.4), legend.key.height = unit(0.2, "in"),
+        legend.key.width = unit(0.2, "in"), legend.spacing.y = unit(0.07, 'in'),
         legend.background = element_rect(fill="#FFFFFF00")) +
   guides(fill = guide_legend(byrow = TRUE))+
   labs(fill = " ") 
 
 
 
-plot_grid(map.top, map.bottom, nrow = 2, labels = c("a", "b"), label_size = 11)
+plot_grid(map.top, map.bottom, nrow = 2, labels = c("a", "b"), label_size = 12)
 
 ggsave(filename = "Figures/Multi-objective-maps.png",
        plot = last_plot(), bg = "white",
-       width = 3.5, 
-       height = 3.4, 
+       width = 3.5*2, 
+       height = 3.4*2, 
        unit = "in",
        dpi = 300)
 
@@ -939,6 +939,13 @@ P1 <- sort[sort$running_percent <= 1,]
 ### cumulative emissions from only restoring top 1% of GHG sinks
 sum(P1$mean_MC)/10^12
 sum(P1$mean_sd)/10^12
+
+### cumulative emissions from only restoring top 1% of GHG sources
+P1 <- sort[sort$running_percent >= 99,]
+sum(P1$mean_MC)/10^12
+sum(P1$mean_sd)/10^12
+
+
 
 ### cumulative emissions from only restoring peatlands with net positive emissions
 Ppos <- sort[sort$norm > 0,]

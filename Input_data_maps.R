@@ -758,13 +758,29 @@ ggsave(filename = "Figures/All_inputs_grid.png",
     geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
     scale_fill_manual(values = pal, na.value = "#00000000",
                       labels = c("0 to 0.01",
-                                 "0.01 to 1", "1 to 10", "10 to 100", "100-100", ">1000"))+
+                                 "0.01 to 1", "1 to 10", "10 to 100", "100-100", ">1000", " "))+
     labs(fill = bquote("CO"[2]*"eq. Gg yr"^-1))+
     theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
           axis.title = element_text(size = 10, face = 'bold'),
           legend.position = "none", legend.key.height = unit(0.13, "in"),
           plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
     annotate("label", x = 20, y = -80, size = 2.5, label = "Drained")  
+  
+  drained_legend <- ggplot() +
+    geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("0 to 0.01",
+                                 "0.01 to 1", "1 to 10", "10 to 100", "100 to 100", ">1000", " "))+
+    labs(fill = bquote("(CO"[2]*"eq. Gg yr"^-1*")"))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = c(0.4,0.51), legend.key.size = unit(0.11, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained")
   
   
 data$net.restore <- data$RESTORE_GWP20 - data$DRAINED_GWP20   #(Kg CO2e/grid cell)
@@ -782,15 +798,15 @@ legend.plot <- ggplot() +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
   scale_fill_manual(values = pal, na.value = "#00000000",
                     labels = c("< -100", "-100 to -10", "-10 to -1", "-1 to -0.01", "-0.01 to 0.01",
-                               "0.01 to 1", "1 to 10", "10 to 100", "100-1000", ">1000"))+
-  labs(fill = bquote("GHG emissions (CO"[2]*"eq. Gg yr"^-1*")"))+
-  theme(legend.position = c(0.525,0.5), legend.direction="horizontal",
+                               "0.01 to 1", "1 to 10", "10 to 100", "100 to 1000", ">1000"))+
+  labs(fill = bquote("(CO"[2]*"eq. Gg yr"^-1*")"))+
+  theme(legend.position = c(0.4,0.5), legend.direction="horizontal",
         legend.title = element_text(size = 8, hjust = 0.5, face = "bold"), 
         legend.key.size = unit(0.11, "in"),
         plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
         axis.title = element_text(size = 10, face = 'bold'),
         plot.margin = margin(t = -0.5, r = 0.3, b = -0.6, l = 1, unit = "in")) +
-  guides(fill = guide_legend(ncol = 5, title.position = "top"))
+  guides(fill = guide_legend(ncol = 1, title.position = "top"))
 
 map.restore <- ggplot() +
   geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
@@ -800,7 +816,7 @@ map.restore <- ggplot() +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
   scale_fill_manual(values = pal, na.value = "#00000000",
                     labels = c("< -100", "-100 to -10", "-10 to -1", "-1 to -0.01", "-0.01 to 0.01",
-                               "0.01 to 1", "1 to 10", "10 to 100", "100-1000", ">1000"))+
+                               "0.01 to 1", "1 to 10", "10 to 100", "100 to 1000", ">1000"))+
   labs(fill = bquote("CO"[2]*"eq. Gg yr"^-1))+
   theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
         axis.title = element_text(size = 10, face = 'bold'),
@@ -827,7 +843,7 @@ map.rewet <- ggplot() +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
   scale_fill_manual(values = pal, na.value = "#00000000",
                     labels = c("< -100", "-100 to -10", "-10 to -1", "-1 to -0.01", "-0.01 to 0.01",
-                               "0.01 to 1", "1 to 10", "10 to 100", "100-1000", ">1000"))+
+                               "0.01 to 1", "1 to 10", "10 to 100", "100 to 1000", ">1000"))+
   labs(fill = bquote("CO"[2]*"eq. Gg yr"^-1))+
   theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
         axis.title = element_text(size = 10, face = 'bold'),
@@ -836,16 +852,35 @@ map.rewet <- ggplot() +
   annotate("label", x = 20, y = -80, size = 2.5, label = "End point: Rewetted")
 
 
-legend <- cowplot::get_legend(legend.plot)
 
-plot_grid(DRAINED_GWP20.v2, map.rewet, map.restore, legend, ncol = 1, 
-          rel_heights = c(1,1,1,0.4),
-          labels = c("a", "b", "c"), label_size = 11)
+legend <- cowplot::get_legend(drained_legend)
+
+legend2 <- cowplot::get_legend(legend.plot)
+
+# plot_grid(DRAINED_GWP20.v2, map.rewet, map.restore, legend, ncol = 1, 
+#           rel_heights = c(1,1,1,0.4),
+#           labels = c("a", "b", "c"), label_size = 11)
+
+top <- plot_grid(DRAINED_GWP20.v2, legend, ncol = 2, 
+                  rel_widths = c(1,0.3),
+                  labels = c(" ", "GHG emissions from\n  drained peatlands"),
+                 label_size = 8, label_x = c(0, -0.5))
+br <- plot_grid(map.rewet, map.restore, ncol = 1, 
+                labels = c("b", "c"), label_size = 11)
+bottom <- plot_grid(br, legend2, nrow = 1, rel_widths = c(1,0.3),
+                    labels = c(" ", "Change in GHG \nemissions from \n   restoration"),
+                    label_size = 8, label_x = -0.4, label_y = 0.85)
+
+
+plot_grid(top, bottom, ncol = 1, rel_heights = c(1,2), labels = c("a", " "), 
+          label_size = 11)
+
+
 
 ggsave(filename = "Figures/Drained-Rewetted-Restored.png",
        plot = last_plot(), bg = "white",
-       width = 3.5, 
-       height = 5.8, 
+       width = 5, 
+       height = 5.7, 
        unit = "in",
        dpi = 300)
 
