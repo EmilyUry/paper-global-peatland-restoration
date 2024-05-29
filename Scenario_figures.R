@@ -62,9 +62,9 @@ y <- list()
 
 for(j in 1:n) {
   Sub <- output[,c(4,j+4)]
-  Sub$norm <- Sub[,2]/Sub$ peatland_loss
+  Sub$norm <- Sub[,2]/Sub$peatland_loss
   Sub <- arrange(Sub, norm)
-  Sub$cum_area <- cumsum(Sub$ peatland_loss)
+  Sub$cum_area <- cumsum(Sub$peatland_loss)
   Sub$running_percent <- Sub$cum_area/sum(Sub$ peatland_loss, na.rm = TRUE)*100
   
   y <- list()
@@ -147,6 +147,121 @@ plotx <- ggplot(S1_rr, aes(x = percent, y = val)) +
   annotate("text", x = 70, y = -2.4, size = 3, label = "Strategic restoration") +
   annotate("text", x = 25, y = 0.1, size = 3, col = "red", label = "Random restoration")
 
+
+
+### aside, mini data table report
+{
+p1 <- S1_rr[S1_rr$percent == 1,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p3 <- S1_rr[S1_rr$percent == 3,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p10 <- S1_rr[S1_rr$percent == 10,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p25 <- S1_rr[S1_rr$percent == 25,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p50 <- S1_rr[S1_rr$percent == 50,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p99 <- S1_rr[S1_rr$percent == 99,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p100 <- S1_rr[S1_rr$percent == 100,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+## anti strategy
+as.data.frame(p100[,-1])-as.data.frame(p99[,-1])
+
+
+anti1 <-  data.frame(matrix(NA, ncol = 1, nrow = 100))[-1]
+x <- seq(1,100, 1)
+y <- list()
+
+for(j in 1:n) {
+  Sub <- output[,c(4,j+4)]
+  Sub$norm <- Sub[,2]/Sub$peatland_loss
+  Sub <- arrange(Sub, desc(norm))
+  Sub$cum_area <- cumsum(Sub$peatland_loss)
+  Sub$running_percent <- Sub$cum_area/sum(Sub$ peatland_loss, na.rm = TRUE)*100
+  
+  y <- list()
+  for(i in 1:100) {
+    subset <- Sub[Sub$running_percent <= i,]
+    y[i] <- sum(subset[,2])/10^12
+  }
+  anti1[,j] <- unlist(y)
+  print(j)
+  print(Sys.time())
+}
+
+
+## Pivot data to long format and find mean for each % restoration
+anti1_long <- anti1 %>% pivot_longer(everything(), names_to = "series", values_to = "val")
+anti1_long$x <- rep(1:100, each = n)
+
+anti1_long <- anti1 %>% pivot_longer(everything(), names_to = "series", values_to = "val")
+anti1_long$percent <- rep(1:100, each = 500)
+anti1_long$strategy <- "carbon"
+anti1_long$series <- rep(seq(501,1000), 100)
+
+
+anti1_rr <- rbind(rr_long, anti1_long )
+
+
+p1 <- anti1_rr[anti1_rr$percent == 1,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p3 <- anti1_rr[anti1_rr$percent == 3,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p10 <- anti1_rr[anti1_rr$percent == 10,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p25 <- anti1_rr[anti1_rr$percent == 25,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p50 <- anti1_rr[anti1_rr$percent == 50,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p99 <- anti1_rr[anti1_rr$percent == 99,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+p100 <- S1_rr[S1_rr$percent == 100,] %>%
+  group_by(strategy) %>%
+  summarize(mean_val = mean(val),
+            sd_val = sd(val))
+
+
+}
 
 
 comp <- data.frame(matrix(NA, ncol = 1, nrow = 100))[-1]
