@@ -149,7 +149,7 @@ plotx <- ggplot(S1_rr, aes(x = percent, y = val)) +
 
 
 
-### aside, mini data table report
+### Results reported in Table 1
 {
 p1 <- S1_rr[S1_rr$percent == 1,] %>%
   group_by(strategy) %>%
@@ -166,7 +166,7 @@ p10 <- S1_rr[S1_rr$percent == 10,] %>%
   summarize(mean_val = mean(val),
             sd_val = sd(val))
 
-p25 <- S1_rr[S1_rr$percent == 25,] %>%
+p30 <- S1_rr[S1_rr$percent == 30,] %>%
   group_by(strategy) %>%
   summarize(mean_val = mean(val),
             sd_val = sd(val))
@@ -240,7 +240,7 @@ p10 <- anti1_rr[anti1_rr$percent == 10,] %>%
   summarize(mean_val = mean(val),
             sd_val = sd(val))
 
-p25 <- anti1_rr[anti1_rr$percent == 25,] %>%
+p30 <- anti1_rr[anti1_rr$percent == 30,] %>%
   group_by(strategy) %>%
   summarize(mean_val = mean(val),
             sd_val = sd(val))
@@ -599,7 +599,7 @@ P3sum.carbon <- colSums(P3MC)
 P10 <- sort[sort$running_percent <= 10,]
 P10MC <- P10[, 9:508]
 P10sum.carbon <- colSums(P10MC)
-P25 <- sort[sort$running_percent <= 25,]
+P25 <- sort[sort$running_percent <= 30,]
 P25MC <- P25[, 9:508]
 P25sum.carbon <- colSums(P25MC)
 C1 <- data.frame(rep("Climate first", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -608,7 +608,7 @@ C3 <- data.frame(rep("Climate first", 500), rep("3%", 500), P3sum.carbon/10^12) 
 names(C3) <- c("strategy", "percent_restore", "net_emissions")
 C10 <- data.frame(rep("Climate first", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
 names(C10) <- c("strategy", "percent_restore", "net_emissions")
-C25 <- data.frame(rep("Climate first", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+C25 <- data.frame(rep("Climate first", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
 names(C25) <- c("strategy", "percent_restore", "net_emissions")
 
 ###### Ag first
@@ -625,7 +625,7 @@ P3sum.carbon <- colSums(P3MC)
 P10 <- sort[sort$running_percent <= 10,]
 P10MC <- P10[, 9:508]
 P10sum.carbon <- colSums(P10MC)
-P25 <- sort[sort$running_percent <= 25,]
+P25 <- sort[sort$running_percent <= 30,]
 P25MC <- P25[, 9:508]
 P25sum.carbon <- colSums(P25MC)
 A1 <- data.frame(rep("Nitrogen first", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -634,7 +634,7 @@ A3 <- data.frame(rep("Nitrogen first", 500), rep("3%", 500), P3sum.carbon/10^12)
 names(A3) <- c("strategy", "percent_restore", "net_emissions")
 A10 <- data.frame(rep("Nitrogen first", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
 names(A10) <- c("strategy", "percent_restore", "net_emissions")
-A25 <- data.frame(rep("Nitrogen first", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+A25 <- data.frame(rep("Nitrogen first", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
 names(A25) <- c("strategy", "percent_restore", "net_emissions")
 
 
@@ -653,7 +653,7 @@ P3sum.carbon <- colSums(P3MC)
 P10 <- sort[sort$running_percent <= 10,]
 P10MC <- P10[, 9:508]
 P10sum.carbon <- colSums(P10MC)
-P25 <- sort[sort$running_percent <= 25,]
+P25 <- sort[sort$running_percent <= 30,]
 P25MC <- P25[, 9:508]
 P25sum.carbon <- colSums(P25MC)
 F1 <- data.frame(rep("Flood risk first", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -662,7 +662,7 @@ F3 <- data.frame(rep("Flood risk first", 500), rep("3%", 500), P3sum.carbon/10^1
 names(F3) <- c("strategy", "percent_restore", "net_emissions")
 F10 <- data.frame(rep("Flood risk first", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
 names(F10) <- c("strategy", "percent_restore", "net_emissions")
-F25 <- data.frame(rep("Flood risk first", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+F25 <- data.frame(rep("Flood risk first", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
 names(F25) <- c("strategy", "percent_restore", "net_emissions")
 
 
@@ -683,7 +683,7 @@ P3sum.carbon <- colSums(P3MC)
 P10 <- sort[sort$running_percent <= 10,]
 P10MC <- P10[, 9:508]
 P10sum.carbon <- colSums(P10MC)
-P25 <- sort[sort$running_percent <= 25,]
+P25 <- sort[sort$running_percent <= 30,]
 P25MC <- P25[, 9:508]
 P25sum.carbon <- colSums(P25MC)
 R1 <- data.frame(rep("Random", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -692,7 +692,7 @@ R3 <- data.frame(rep("Random", 500), rep("3%", 500), P3sum.carbon/10^12) #Pg
 names(R3) <- c("strategy", "percent_restore", "net_emissions")
 R10 <- data.frame(rep("Random", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
 names(R10) <- c("strategy", "percent_restore", "net_emissions")
-R25 <- data.frame(rep("Random", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+R25 <- data.frame(rep("Random", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
 names(R25) <- c("strategy", "percent_restore", "net_emissions")
 
 
@@ -713,7 +713,7 @@ P3sum.carbon <- colSums(P3MC)
 P10 <- sort[sort$running_percent <= 10,]
 P10MC <- P10[, 6:505]
 P10sum.carbon <- colSums(P10MC)
-P25 <- sort[sort$running_percent <= 25,]
+P25 <- sort[sort$running_percent <= 30,]
 P25MC <- P25[, 6:505]
 P25sum.carbon <- colSums(P25MC)
 net.feedbackfirst.25p <- mean(P25sum.carbon)/10^12
@@ -724,7 +724,7 @@ X3 <- data.frame(rep("Feedback", 500), rep("3%", 500), P3sum.carbon/10^12) #Pg
 names(X3) <- c("strategy", "percent_restore", "net_emissions")
 X10 <- data.frame(rep("Feedback", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
 names(X10) <- c("strategy", "percent_restore", "net_emissions")
-X25 <- data.frame(rep("Feedback", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+X25 <- data.frame(rep("Feedback", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
 names(X25) <- c("strategy", "percent_restore", "net_emissions")
 
 
@@ -735,7 +735,7 @@ bplot <- rbind(C1, C3, C10, C25, X1, X3, X10, X25,
              A1, A3, A10, A25, F1, F3, F10, F25, R1, R3, R10, R25)
 bplot$strategy <- factor(bplot$strategy, levels = c("Climate first", "Feedback", "Nitrogen first", 
                                                 "Flood risk first", "Random"))
-bplot$percent_restore <- factor(bplot$percent_restore, levels = c("1%", "3%", "10%", "25%"))
+bplot$percent_restore <- factor(bplot$percent_restore, levels = c("1%", "3%", "10%", "30%"))
 pal <- c("#666666","#54246b", "#f0d72b", "#2b6a78","#ff6161") # color blind friendly
 
 bottom <- ggplot(bplot, aes(x = percent_restore, y = net_emissions, fill = strategy)) +
@@ -776,23 +776,23 @@ sd.10p.climate_first <- sd(CF$net_emissions)
 median.10p.random <- median(RR$net_emissions)
 sd.10p.random <- sd(RR$net_emissions)
 
-CF <- bplot[bplot$strategy == "Climate first" & bplot$percent_restore == "25%",]
-RR <- bplot[bplot$strategy == "Random" & bplot$percent_restore == "25%",]
+CF <- bplot[bplot$strategy == "Climate first" & bplot$percent_restore == "30%",]
+RR <- bplot[bplot$strategy == "Random" & bplot$percent_restore == "30%",]
 median.25p.climate_first <- median(CF$net_emissions) #Pg CO2e/yr
 sd.25p.climate_first <- sd(CF$net_emissions)
 median.25p.random <- median(RR$net_emissions)
 sd.25p.random <- sd(RR$net_emissions)
 
 
-CF <- bplot[bplot$strategy == "Flood risk first" & bplot$percent_restore == "25%",]
-RR <- bplot[bplot$strategy == "Nitrogen first" & bplot$percent_restore == "25%",]
+CF <- bplot[bplot$strategy == "Flood risk first" & bplot$percent_restore == "30%",]
+RR <- bplot[bplot$strategy == "Nitrogen first" & bplot$percent_restore == "30%",]
 median.25p.flood_first <- median(CF$net_emissions) #Pg CO2e/yr
 sd.25p.flood_first <- sd(CF$net_emissions)
 median.25p.N_first <- median(RR$net_emissions)
 sd.25p.N_first <- sd(RR$net_emissions)
 
 
-FM <- bplot[bplot$strategy == "Feedback" & bplot$percent_restore == "25%",]
+FM <- bplot[bplot$strategy == "Feedback" & bplot$percent_restore == "30%",]
 median.25p.feedback <- median(FM$net_emissions) #Pg CO2e/yr
 sd.25p.feedback <- sd(FM$net_emissions)
 
@@ -815,18 +815,18 @@ summary <- as.data.frame(t(matrix(c("median, climate first, 10%", median.10p.cli
                  "SD, random, 10%", sd.10p.random,
                  "Climate first minus random, 10%", CR.RR.10p, 
                  "SD, Climate first minus random, 10%", CR.RR.sd.10p,
-                 "median, climate first, 25%", median.25p.climate_first,
-                 "SD, climate first, 25%", sd.25p.climate_first,
-                 "median, random, 25%", median.25p.random, 
-                 "SD, random, 25%", sd.25p.random, 
-                 "Climate first minus random, 25%", CR.RR.25p, 
-                 "SD, Climate first minus random, 25%", CR.RR.sd.25p, 
-                 "median, flood first, 25%", median.25p.flood_first,
-                 "SD, flood first, 25%", sd.25p.flood_first,
-                 "median, N first, 25%", median.25p.N_first,
-                 "SD, N first, 25%", sd.25p.N_first, 
-                 "median, feedback first, 25%", median.25p.feedback,
-                 "SD, feedback first, 25%", sd.25p.feedback,
+                 "median, climate first, 30%", median.25p.climate_first,
+                 "SD, climate first, 30%", sd.25p.climate_first,
+                 "median, random, 30%", median.25p.random, 
+                 "SD, random, 30%", sd.25p.random, 
+                 "Climate first minus random, 30%", CR.RR.25p, 
+                 "SD, Climate first minus random, 30%", CR.RR.sd.25p, 
+                 "median, flood first, 30%", median.25p.flood_first,
+                 "SD, flood first, 30%", sd.25p.flood_first,
+                 "median, N first, 30%", median.25p.N_first,
+                 "SD, N first, 30%", sd.25p.N_first, 
+                 "median, feedback first, 30%", median.25p.feedback,
+                 "SD, feedback first, 30%", sd.25p.feedback,
                  "Climate first minus flood first, percent difference", percent.dif.CF.FF,
                  "Climate first minus n first, percent difference", percent.dif.CF.NF), nrow = 2)))
 
