@@ -158,6 +158,8 @@ mean_long[52,] <- list("1", "CH4", "Wetland", 2364, 5397 )
 mean_long[53,] <- list("2", "CH4", "Wetland", 7112, 28163 )
 mean_long[54,] <- list("3", "CH4", "Wetland", 15720, 38993 )
 
+
+options(scipen = 9)
 mean_long$units <- "kg/km2/year"
 
 
