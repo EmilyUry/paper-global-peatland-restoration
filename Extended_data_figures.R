@@ -655,7 +655,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   P10 <- sort[sort$running_percent <= 10,]
   P10MC <- P10[, 7:506]
   P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 25,]
+  P25 <- sort[sort$running_percent <= 30,]
   P25MC <- P25[, 7:506]
   P25sum.carbon <- colSums(P25MC)
   C1 <- data.frame(rep("Strategic - SGWP20", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -664,7 +664,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   names(C3) <- c("strategy", "percent_restore", "net_emissions")
   C10 <- data.frame(rep("Strategic - SGWP20", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
   names(C10) <- c("strategy", "percent_restore", "net_emissions")
-  C25 <- data.frame(rep("Strategic - SGWP20", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+  C25 <- data.frame(rep("Strategic - SGWP20", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
   names(C25) <- c("strategy", "percent_restore", "net_emissions")
   
   
@@ -686,7 +686,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   P10 <- sort[sort$running_percent <= 10,]
   P10MC <- P10[, 7:506]
   P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 25,]
+  P25 <- sort[sort$running_percent <= 30,]
   P25MC <- P25[, 7:506]
   P25sum.carbon <- colSums(P25MC)
   A1 <- data.frame(rep("Strategic - SGWP100", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -695,7 +695,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   names(A3) <- c("strategy", "percent_restore", "net_emissions")
   A10 <- data.frame(rep("Strategic - SGWP100", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
   names(A10) <- c("strategy", "percent_restore", "net_emissions")
-  A25 <- data.frame(rep("Strategic - SGWP100", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+  A25 <- data.frame(rep("Strategic - SGWP100", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
   names(A25) <- c("strategy", "percent_restore", "net_emissions")
   
   #### Random GWP 20
@@ -714,7 +714,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   P10 <- sort[sort$running_percent <= 10,]
   P10MC <- P10[, 7:506]
   P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 25,]
+  P25 <- sort[sort$running_percent <= 30,]
   P25MC <- P25[, 7:506]
   P25sum.carbon <- colSums(P25MC)
   R1 <- data.frame(rep("Random - SGWP20", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -723,7 +723,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   names(R3) <- c("strategy", "percent_restore", "net_emissions")
   R10 <- data.frame(rep("Random - SGWP20", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
   names(R10) <- c("strategy", "percent_restore", "net_emissions")
-  R25 <- data.frame(rep("Random - SGWP20", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+  R25 <- data.frame(rep("Random - SGWP20", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
   names(R25) <- c("strategy", "percent_restore", "net_emissions")
   
   
@@ -743,7 +743,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   P10 <- sort[sort$running_percent <= 10,]
   P10MC <- P10[, 7:506]
   P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 25,]
+  P25 <- sort[sort$running_percent <= 30,]
   P25MC <- P25[, 7:506]
   P25sum.carbon <- colSums(P25MC)
   F1 <- data.frame(rep("Random - SGWP100", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
@@ -752,13 +752,13 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   names(F3) <- c("strategy", "percent_restore", "net_emissions")
   F10 <- data.frame(rep("Random - SGWP100", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
   names(F10) <- c("strategy", "percent_restore", "net_emissions")
-  F25 <- data.frame(rep("Random - SGWP100", 500), rep("25%", 500), P25sum.carbon/10^12) #Pg
+  F25 <- data.frame(rep("Random - SGWP100", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
   names(F25) <- c("strategy", "percent_restore", "net_emissions")
   
   ### put it all together for the figure
   fig <- rbind(C1, C3, C10, C25, A1, A3, A10, A25, R1, R3, R10, R25, F1, F3, F10, F25)
   fig$strategy <- factor(fig$strategy, levels = c("Strategic - SGWP20", "Strategic - SGWP100", "Random - SGWP20", "Random - SGWP100"))
-  fig$percent_restore <- factor(fig$percent_restore, levels = c("1%", "3%", "10%", "25%"))
+  fig$percent_restore <- factor(fig$percent_restore, levels = c("1%", "3%", "10%", "30%"))
   pal <- c("#666666", "#66666655", "#ff6161","#ff616155") # color blind friendly
   
   top.right <- ggplot(fig, aes(x = percent_restore, y = net_emissions, fill = strategy)) +
