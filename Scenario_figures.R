@@ -1106,5 +1106,17 @@ net.feedbackfirst.25p #### net emissions from rewetting 35% drained peatlands, f
 sd.feedbackfirst.25p ### sd ^
 
 
+########### Reponse to reviewer queries
+data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
+filter <- data[data$biomes == 3,]
+trop.peatx <- filter[filter$WL_peatx > 0,]
+sum(trop.peatx$WL_peatx)
 
 
+filter <- data[data$biomes == 3,]
+trop.rice <- filter[filter$WL_rice > 0,]
+sum(trop.rice$WL_rice)
+
+filter <- data[data$biomes == 2,]
+temp.rice <- filter[filter$WL_rice > 0,]
+sum(temp.rice$WL_rice)
