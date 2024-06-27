@@ -825,6 +825,10 @@ map.restore <- ggplot() +
   annotate("label", x = 20, y = -80, size = 2.5, label = "End point: Intact")
 
 
+subset.negative <- data[data$net.restore < 0,]
+pp.sink.restore <- sum(subset.negative$peatland_loss)/sum(data$peatland_loss)*100
+
+
 
 #### Endpoint: Rewetted  
 data$net.rewet <- data$REWET_GWP20 - data$DRAINED_GWP20   #(Kg CO2e/grid cell)
@@ -851,6 +855,8 @@ map.rewet <- ggplot() +
         plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
   annotate("label", x = 20, y = -80, size = 2.5, label = "End point: Rewetted")
 
+subset.negative <- data[data$net.rewet < 0,]
+pp.sink.rewet <- sum(subset.negative$peatland_loss)/sum(data$peatland_loss)*100
 
 
 legend <- cowplot::get_legend(drained_legend)
@@ -898,7 +904,9 @@ pp.sink ## The percent of peatlands that would be GHG sinks in their own right
         ## following restoration to intact conditions (not even accounting for 
         ## emissions avoided from the drained state)
 
+pp.sink.restore ## The percent of peatlands that would be NET GHG sinks following restoration to intact conditions
 
+pp.sink.rewet ##  The percent of peatland that owuld be NET GHG sinks following rewetting (REWETTED)
 
 
 
