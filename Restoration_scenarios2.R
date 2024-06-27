@@ -103,9 +103,11 @@ MC_2010 <- data.frame(matrix(NA, ncol = 1, nrow = nrow(filter)))[-1]
 MC_Rewet <- data.frame(matrix(NA, ncol = 1, nrow = nrow(filter)))[-1]
 
 
+set.seed(321)
 for(i in 1:500) {
   
  ## Generate emission factor for each grid cell based on draw from distribution
+
   
  MC_EF <- EF %>%
     dplyr::select(CZ, LU, GHG, EF_mean, SD) %>%
