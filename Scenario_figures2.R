@@ -869,6 +869,24 @@ ztest.ag25 <- z_test(mean1, mean2, sd1, sd2, n1, n2)
 ztest.ag25
 
 
+
+
+### future
+group1 <- X25$net_emissions
+group2 <- R25$net_emissions
+
+# Sample data
+mean1 <- mean(group1)      # Mean of group 1
+mean2 <- mean(group2)      # Mean of group 2
+sd1 <- sd(group1)         # Standard deviation of group 1
+sd2 <- sd(group2)         # Standard deviation of group 2
+n1 <- length(group1)         # Sample size of group 1
+n2 <- length(group2)         # Sample size of group 2
+
+# Perform the z-test
+ztest.x25 <- z_test(mean1, mean2, sd1, sd2, n1, n2)
+ztest.x25
+
 summary <- as.data.frame(t(matrix(c("median, climate first, 10%", median.10p.climate_first,
                                     "SD, climate first, 10%", sd.10p.climate_first,
                                     "median, random, 10%", median.10p.random, 
@@ -896,7 +914,9 @@ summary <- as.data.frame(t(matrix(c("median, climate first, 10%", median.10p.cli
                                     "ztest flood 30%, z", ztest.flood25[1],
                                     "ztest flood 30% p", ztest.flood25[2],
                                     "ztest ag 30%, z", ztest.ag25[1],
-                                    "ztest ag 30%, p", ztest.ag25[2]), nrow = 2)))
+                                    "ztest ag 30%, p", ztest.ag25[2],
+                                    "ztest future 30%, z", ztest.x25[1],
+                                    "ztest future 30%, p", round(unlist(ztest.x25[2],10))), nrow = 2)))
 summary
 
 }
@@ -962,7 +982,7 @@ table(map.filter$intersect)
 # 2 = both flood and climate  # 2193
 # 3 = all three  ## 191  ## 428
 
-
+2193/519
 
 
 
