@@ -18,7 +18,7 @@ library(cowplot)
 
 ### Extended Data Figure - Emissions factor bar charts
 {
-df <- read.csv("Data_sources/Emission_Factors/EF_SD_Summary.csv")
+df <- read.csv("Data_sources/Emission_Factors/EF_SD_Summary2.csv")
 df$CZ <- factor(df$CZ)
 levels(df$CZ) <- c("Boreal", "Temperate", "Tropical")
 df$CZ <- factor(df$CZ, levels = c("Tropical", "Temperate", "Boreal"))
@@ -57,7 +57,7 @@ top <- plot_grid(NULL, NULL, NULL, NULL, NULL,  ncol = 5, rel_widths = c(1, 1, 1
 plot_grid(top, p, ncol = 1, rel_heights = c(1, 14))
 
 
-ggsave(filename = "Figures/Extended_Figures/EF_bar_plot.png",
+ggsave(filename = "Figures/Extended_Figures/EF_bar_plot_v2.png",
        plot = last_plot(), bg = "white",
        width = 6, 
        height = 3, 
@@ -126,7 +126,7 @@ S1B <- ggplot() +
 
 plot_grid(S1A, S1B, ncol = 1, labels = c("a", "b"), label_size = 11)
 
-ggsave(filename = "Figures/Extended_Figures/Drained_peatland.png",
+ggsave(filename = "Figures/Extended_Figures/Drained_peatland_v2.png",
        plot = last_plot(), bg = "white",
        width = 5, 
        height = 5.2, 
@@ -207,7 +207,7 @@ FR <- ggplot() +
 
 plot_grid(CZ, NF, FR, ncol = 1, labels = c("a", "b", "c"), label_size = 11)
 
-ggsave(filename = "Figures/Extended_Figures/Aux_data_inputs.png",
+ggsave(filename = "Figures/Extended_Figures/Aux_data_inputs_v2.png",
        plot = last_plot(), bg = "white",
        width = 5, 
        height = 7.9, 
@@ -220,8 +220,8 @@ ggsave(filename = "Figures/Extended_Figures/Aux_data_inputs.png",
 #### Multi-objective comparison -- recently drained peatland only
 
 {
-data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
-MC_2010 <- read.csv("Data_sources/Extracted_datafiles/MC_2010.csv")
+data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered2.csv")
+MC_2010 <- read.csv("Data_sources/Extracted_datafiles/MC_2010_2.csv")
 
 
 ## Carbon first 
@@ -406,7 +406,7 @@ map.bottom <- ggplot() +
 plot_grid(top, map.bottom, ncol = 1, labels = c(" ", "c"), label_size = 11, 
           rel_heights = c(1.1,1))
 
-ggsave(filename = "Figures/Extended_Figures/Multi-objective-RECENT-loss.png",
+ggsave(filename = "Figures/Extended_Figures/Multi-objective-RECENT-loss_v2.png",
        plot = last_plot(), bg = "white",
        width = 5, 
        height = 5, 
@@ -420,8 +420,8 @@ ggsave(filename = "Figures/Extended_Figures/Multi-objective-RECENT-loss.png",
 #### Net emissions, rewetted end member (spaghetti plot)
 
 {
-data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
-MC_Rewet <- read.csv("Data_sources/Extracted_datafiles/MC_Rewet.csv")
+data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered2.csv")
+MC_Rewet <- read.csv("Data_sources/Extracted_datafiles/MC_Rewet_2.csv")
 
 
 
@@ -515,11 +515,11 @@ ggplot(S1_rr, aes(x = percent, y = val)) +
   geom_line(data = Vstat, aes(x = x, y = S1.mean), color = "black", lwd = 1) +
   ylab(bquote("GHG emissions (Pg CO"[2]*"eq. yr"^{-1}*")")) +
   xlab("Drained peatland restored (%)") +
-  ylim(-6.5,4) +
+  ylim(-6.5,5) +
   annotate("text", x = 25, y = -4, size = 3, label = "Strategic restoration") +
   annotate("text", x = 25, y = 2, size = 3, col = "red", label = "Random restoration")
 
-ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
+ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v2.png",
        plot = last_plot(), bg = "white",
        width = 4, 
        height = 4, 
@@ -531,9 +531,90 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
 #### Emissions over 100-year time horizons
 
 {
-  data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
-  MC_SGWP20 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP20.csv")
-  MC_SGWP100 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP100.csv")
+  
+  ## OG WAY _ SGWP20 
+  
+  data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered2.csv")
+  MC_SGWP20 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP20_2.csv")
+  
+
+  output <- data %>%
+    dplyr::select(x, y, peatlands, peatland_loss)
+  output <- cbind(output, MC_SGWP20)
+  
+  n <- 500  ## number of iterations in the MC
+  
+  #### loop through all columns to find the order of restoration by low to high
+  #### area normalized emissions rate
+  
+  S1 <-  data.frame(matrix(NA, ncol = 1, nrow = 100))[-1]
+  x <- seq(1,100, 1)
+  y <- list()
+  
+  for(j in 1:n) {
+    Sub <- output[,c(4,j+4)]
+    Sub$norm <- Sub[,2]/Sub$ peatland_loss
+    Sub <- arrange(Sub, norm)
+    Sub$cum_area <- cumsum(Sub$ peatland_loss)
+    Sub$running_percent <- Sub$cum_area/sum(Sub$ peatland_loss, na.rm = TRUE)*100
+    
+    y <- list()
+    for(i in 1:100) {
+      subset <- Sub[Sub$running_percent <= i,]
+      y[i] <- sum(subset[,2])/10^12
+    }
+    S1[,j] <- unlist(y)
+    print(j)
+    print(Sys.time())
+  }
+  
+  
+  ## Pivot data to long format and find mean for each % restoration
+  S1_long <- S1 %>% pivot_longer(everything(), names_to = "series", values_to = "val")
+  S1_long$x <- rep(1:100, each = n)
+  #mean
+  S1.mean <- rowMeans(S1)
+  Vstat <- data.frame(x, S1.mean)
+  
+  
+  ## Random restoration (rr) -- shuffle output of monte carlo for random draw
+  rr <- data.frame(matrix(NA, ncol = 1, nrow = 100))[-1]
+  set.seed(123)
+  shuffle <- output[sample(1:nrow(output)),]
+  shuffle$cum_area <- cumsum(shuffle$ peatland_loss)
+  shuffle$running_percent <- shuffle$cum_area/sum(shuffle$ peatland_loss, na.rm = TRUE)*100
+  
+  for(j in 1:n) {
+    Sub <- shuffle[,c(506,j+4)]
+    
+    y2 <- list()
+    for(i in 1:100) {
+      subset <- Sub[Sub$running_percent <= i,]
+      y2[i] <- sum(subset[,2])/10^12
+    }
+    rr[,j] <- unlist(y2)
+    print(j)
+    print(Sys.time())
+  }
+  
+  Vstat$rr.mean <- rowMeans(rr)
+  ## pivot longer to creat a figure with all MCs as a line
+  S1_long <- S1 %>% pivot_longer(everything(), names_to = "series", values_to = "val")
+  S1_long$percent <- rep(1:100, each = 500)
+  S1_long$strategy <- "carbon"
+  S1_long$series <- rep(seq(501,1000), 100)
+
+  rr_long <- rr %>% pivot_longer(everything(), names_to = "series", values_to = "val")
+  rr_long$percent <- rep(1:100, each = 500)
+  rr_long$strategy <- "random"
+  rr_long$series <- rep(seq(1, 500), 100)
+
+
+  
+  #### USING SGWP100
+  
+  
+  MC_SGWP100 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP100_2.csv")
   
   
   
@@ -605,12 +686,13 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   S1_long$percent <- rep(1:100, each = 500)
   S1_long$strategy <- "carbon"
   S1_long$series <- rep(seq(501,1000), 100)
+  S100_long <- S1_long
   
   rr_long <- rr %>% pivot_longer(everything(), names_to = "series", values_to = "val")
   rr_long$percent <- rep(1:100, each = 500)
   rr_long$strategy <- "random"
   rr_long$series <- rep(seq(1, 500), 100)
-  
+  rr100_long <- rr_long
   
   S1_rr <- rbind(rr_long, S1_long )
   
@@ -636,125 +718,74 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   ###### box plot - GWP20 - GWP100 compare
   
   
-  output <- data %>%
-    dplyr::select(x,y,peatlands, peatland_loss)
-  output$mean_MC <- rowMeans(MC_SGWP20)     ## emissions in kg CO2e/year/gridcell
-  output$norm <- output$mean_MC/output$peatland_loss   ## emissions in kg CO2e/km2/yr
+  P1 <- S1_long[S1_long$percent == 1,]
+  P3 <- S1_long[S1_long$percent ==3,]
+  P10 <- S1_long[S1_long$percent ==10,]
+  P30 <- S1_long[S1_long$percent ==30,]
+  P100 <- S1_long[S1_long$percent ==100,]
   
-  #### CARBON FIRST
-  df <- cbind(output, MC_SGWP20)
-  sort <- arrange(df, norm)
-  sort$cum_area <- cumsum(sort$peatland_loss)
-  sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-  P1 <- sort[sort$running_percent <= 1,]
-  P1MC <- P1[, 7:506]
-  P1sum.carbon <- colSums(P1MC)
-  P3 <- sort[sort$running_percent <= 3,]
-  P3MC <- P3[, 7:506]
-  P3sum.carbon <- colSums(P3MC)
-  P10 <- sort[sort$running_percent <= 10,]
-  P10MC <- P10[, 7:506]
-  P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 30,]
-  P25MC <- P25[, 7:506]
-  P25sum.carbon <- colSums(P25MC)
-  C1 <- data.frame(rep("Strategic - SGWP20", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
+  ## reporting metrics -- restor all (100%)
+  restore_all_SGWP20 <- mean(P100$val)
+  sd_restore_all_SGWP20 <- sd(P100$val)
+  
+  C1 <- data.frame(rep("Strategic - SGWP20", 500), rep("1%", 500), P1$val) #Pg
   names(C1) <- c("strategy", "percent_restore", "net_emissions")
-  C3 <- data.frame(rep("Strategic - SGWP20", 500), rep("3%", 500), P3sum.carbon/10^12) #Pg
+  C3 <- data.frame(rep("Strategic - SGWP20", 500), rep("3%", 500), P3$val) #Pg
   names(C3) <- c("strategy", "percent_restore", "net_emissions")
-  C10 <- data.frame(rep("Strategic - SGWP20", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
+  C10 <- data.frame(rep("Strategic - SGWP20", 500), rep("10%", 500), P10$val) #Pg
   names(C10) <- c("strategy", "percent_restore", "net_emissions")
-  C25 <- data.frame(rep("Strategic - SGWP20", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
+  C25 <- data.frame(rep("Strategic - SGWP20", 500), rep("30%", 500), P30$val) #Pg
   names(C25) <- c("strategy", "percent_restore", "net_emissions")
   
+  P1 <- S100_long[S100_long$percent == 1,]
+  P3 <- S100_long[S100_long$percent ==3,]
+  P10 <- S100_long[S100_long$percent ==10,]
+  P30 <- S100_long[S100_long$percent ==30,]
+  P100 <- S100_long[S100_long$percent ==100,]
   
-  ###### Climate first GWP 100
-  output <- data %>%
-    dplyr::select(x,y,peatlands, peatland_loss)
-  output$mean_MC <- rowMeans(MC_SGWP100)     ## emissions in kg CO2e/year/gridcell
-  output$norm <- output$mean_MC/output$peatland_loss   ## emissions in kg CO2e/km2/yr
-  df <- cbind(output, MC_SGWP100)
-  sort <- arrange(df, norm)
-  sort$cum_area <- cumsum(sort$peatland_loss)
-  sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-  P1 <- sort[sort$running_percent <= 1,]
-  P1MC <- P1[, 7:506]
-  P1sum.carbon <- colSums(P1MC)
-  P3 <- sort[sort$running_percent <= 3,]
-  P3MC <- P3[, 7:506]
-  P3sum.carbon <- colSums(P3MC)
-  P10 <- sort[sort$running_percent <= 10,]
-  P10MC <- P10[, 7:506]
-  P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 30,]
-  P25MC <- P25[, 7:506]
-  P25sum.carbon <- colSums(P25MC)
-  A1 <- data.frame(rep("Strategic - SGWP100", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
+  ## reporting metrics -- restor all (100%)
+  restore_all_SGWP100 <- mean(P100$val)
+  sd_restore_all_SGWP100 <- sd(P100$val)
+
+  
+  A1 <- data.frame(rep("Strategic - SGWP100", 500), rep("1%", 500), P1$val) #Pg
   names(A1) <- c("strategy", "percent_restore", "net_emissions")
-  A3 <- data.frame(rep("Strategic - SGWP100", 500), rep("3%", 500), P3sum.carbon/10^12) #Pg
+  A3 <- data.frame(rep("Strategic - SGWP100", 500), rep("3%", 500), P3$val) #Pg
   names(A3) <- c("strategy", "percent_restore", "net_emissions")
-  A10 <- data.frame(rep("Strategic - SGWP100", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
+  A10 <- data.frame(rep("Strategic - SGWP100", 500), rep("10%", 500), P10$val) #Pg
   names(A10) <- c("strategy", "percent_restore", "net_emissions")
-  A25 <- data.frame(rep("Strategic - SGWP100", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
+  A25 <- data.frame(rep("Strategic - SGWP100", 500), rep("30%", 500), P30$val) #Pg
   names(A25) <- c("strategy", "percent_restore", "net_emissions")
   
-  #### Random GWP 20
-  df <- cbind(output, MC_SGWP20)
-  ## instead of sort, we shuffle
-  set.seed(123)
-  sort <- df[sample(1:nrow(df)),] 
-  sort$cum_area <- cumsum(sort$peatland_loss)
-  sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-  P1 <- sort[sort$running_percent <= 1,]
-  P1MC <- P1[, 7:506]
-  P1sum.carbon <- colSums(P1MC)
-  P3 <- sort[sort$running_percent <= 3,]
-  P3MC <- P3[, 7:506]
-  P3sum.carbon <- colSums(P3MC)
-  P10 <- sort[sort$running_percent <= 10,]
-  P10MC <- P10[, 7:506]
-  P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 30,]
-  P25MC <- P25[, 7:506]
-  P25sum.carbon <- colSums(P25MC)
-  R1 <- data.frame(rep("Random - SGWP20", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
+  P1 <- rr_long[rr_long$percent == 1,]
+  P3 <- rr_long[rr_long$percent ==3,]
+  P10 <- rr_long[rr_long$percent ==10,]
+  P30 <- rr_long[rr_long$percent ==30,]
+  
+  R1 <- data.frame(rep("Random - SGWP20", 500), rep("1%", 500), P1$val) #Pg
   names(R1) <- c("strategy", "percent_restore", "net_emissions")
-  R3 <- data.frame(rep("Random - SGWP20", 500), rep("3%", 500), P3sum.carbon/10^12) #Pg
+  R3 <- data.frame(rep("Random - SGWP20", 500), rep("3%", 500), P3$val) #Pg
   names(R3) <- c("strategy", "percent_restore", "net_emissions")
-  R10 <- data.frame(rep("Random - SGWP20", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
+  R10 <- data.frame(rep("Random - SGWP20", 500), rep("10%", 500), P10$val) #Pg
   names(R10) <- c("strategy", "percent_restore", "net_emissions")
-  R25 <- data.frame(rep("Random - SGWP20", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
+  R25 <- data.frame(rep("Random - SGWP20", 500), rep("30%", 500), P30$val) #Pg
   names(R25) <- c("strategy", "percent_restore", "net_emissions")
   
+  P1 <- rr100_long[rr100_long$percent == 1,]
+  P3 <- rr100_long[rr100_long$percent ==3,]
+  P10 <- rr100_long[rr100_long$percent ==10,]
+  P30 <- rr100_long[rr100_long$percent ==30,]
   
-  #### Random GWP 100
-  df <- cbind(output, MC_SGWP100)
-  ## instead of sort, we shuffle
-  set.seed(123)
-  sort <- df[sample(1:nrow(df)),] 
-  sort$cum_area <- cumsum(sort$peatland_loss)
-  sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-  P1 <- sort[sort$running_percent <= 1,]
-  P1MC <- P1[, 7:506]
-  P1sum.carbon <- colSums(P1MC)
-  P3 <- sort[sort$running_percent <= 3,]
-  P3MC <- P3[, 7:506]
-  P3sum.carbon <- colSums(P3MC)
-  P10 <- sort[sort$running_percent <= 10,]
-  P10MC <- P10[, 7:506]
-  P10sum.carbon <- colSums(P10MC)
-  P25 <- sort[sort$running_percent <= 30,]
-  P25MC <- P25[, 7:506]
-  P25sum.carbon <- colSums(P25MC)
-  F1 <- data.frame(rep("Random - SGWP100", 500), rep("1%", 500), P1sum.carbon/10^12) #Pg
+  F1 <- data.frame(rep("Random - SGWP100", 500), rep("1%", 500), P1$val) #Pg
   names(F1) <- c("strategy", "percent_restore", "net_emissions")
-  F3 <- data.frame(rep("Random - SGWP100", 500), rep("3%", 500), P3sum.carbon/10^12) #Pg
+  F3 <- data.frame(rep("Random - SGWP100", 500), rep("3%", 500), P3$val) #Pg
   names(F3) <- c("strategy", "percent_restore", "net_emissions")
-  F10 <- data.frame(rep("Random - SGWP100", 500), rep("10%", 500), P10sum.carbon/10^12) #Pg
+  F10 <- data.frame(rep("Random - SGWP100", 500), rep("10%", 500), P10$val) #Pg
   names(F10) <- c("strategy", "percent_restore", "net_emissions")
-  F25 <- data.frame(rep("Random - SGWP100", 500), rep("30%", 500), P25sum.carbon/10^12) #Pg
+  F25 <- data.frame(rep("Random - SGWP100", 500), rep("30%", 500), P30$val) #Pg
   names(F25) <- c("strategy", "percent_restore", "net_emissions")
   
+
   ### put it all together for the figure
   fig <- rbind(C1, C3, C10, C25, A1, A3, A10, A25, R1, R3, R10, R25, F1, F3, F10, F25)
   fig$strategy <- factor(fig$strategy, levels = c("Strategic - SGWP20", "Strategic - SGWP100", "Random - SGWP20", "Random - SGWP100"))
@@ -828,138 +859,26 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random.png",
   plot_grid(top.row, bottom.map, ncol = 1, labels = c(" ", "c"),
             label_size = 11, rel_heights = c(4,3))
   
-  ggsave(filename = "Figures/Extended_Figures/S2_GWP100.png",
+  ggsave(filename = "Figures/Extended_Figures/S2_GWP100_v2.png",
          plot = last_plot(), bg = "white",
          width = 6, 
          height = 7, 
          unit = "in",
          dpi = 300)
+  
+  
+  
+  metrics <- as.data.frame(t(matrix(c("net GHG, restora all, SGWP20", restore_all_SGWP20,
+                                      "SD^", sd_restore_all_SGWP20, 
+                                      "net GHG, restore all, SGWO100", restore_all_SGWP100, 
+                                      "SD^", sd_restore_all_SGWP100), nrow = 2)))
+  metrics
+  
+  
 }
 
 
 
-#### Targeted areas for restoration - maps (1,3,10,25%) for GWP20 and GWP100
-{
-### color palette
-data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
-coasts <- st_read("Data_sources/Coastline/ne_110m_coastline.shp", quiet = TRUE)
-MC_SGWP20 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP20.csv")
-
-output <- data %>%
-  dplyr::select(x,y,peatlands, peatland_loss)
-
-output$mean_MC20 <- rowMeans(MC_SGWP20)     ## emissions in kg CO2e/year/gridcell
-output$norm_20 <- output$mean_MC20/output$peatland_loss   ## emissions in kg CO2e/km2/yr
-
-sort <- arrange(output, norm_20)
-sort$cum_area <- cumsum(sort$peatland_loss)
-sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$GWP20.25 <- ifelse(sort$running_percent < 1, 1, 
-                        ifelse(sort$running_percent < 3, 2,
-                               ifelse(sort$running_percent < 10, 3,
-                                      ifelse(sort$running_percent < 25,4, NA))))
-table(sort$GWP20.25)
-
-top.gwp20 <- ggplot() +
-  geom_tile(data = sort, aes(x= x, y = y, fill = as.factor(GWP20.25))) +
-  scale_fill_manual(values = c( "#e7298a", "#d95f02", "#1b9e77", "#7570b3"), na.value = "#00000000",
-                    labels = c("1%", "3%", "10%", "25%", " ")) +
-  xlab(" ") +
-  ylab(" ") +
-  theme_bw(base_size = 9) +
-  geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.1,0.4), legend.key.height = unit(0.18, "in"),
-        legend.key.width = unit(0.15, "in"),
-        legend.background = element_rect(fill="#FFFFFF"),
-        plot.margin = margin(t = -0.1, r = 0.1, b = -0.3, l = 0.1, unit = "in")) +
-  labs(fill = "Peatland \nrestored") +
-  annotate("label", x = 20, y = -80, size = 2.5, label = "20-year time horizon")
-
-
-
-
-### SGWP100
-#MC_SGWP100 <- read.csv("Data_sources/Extracted_datafiles/MC_SGWP100.csv")
-
-
-output$mean_MC20 <- rowMeans(MC_SGWP100)     ## emissions in kg CO2e/year/gridcell
-output$norm_20 <- output$mean_MC20/output$peatland_loss   ## emissions in kg CO2e/km2/yr
-
-sort <- arrange(output, norm_20)
-sort$cum_area <- cumsum(sort$peatland_loss)
-sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$GWP100.25 <- ifelse(sort$running_percent < 1, 1, 
-                        ifelse(sort$running_percent < 3, 2,
-                               ifelse(sort$running_percent < 10, 3,
-                                      ifelse(sort$running_percent < 25,4, NA))))
-table(sort$GWP100.25)
-
-bottom.gwp100 <- ggplot() +
-  geom_tile(data = sort, aes(x= x, y = y, fill = as.factor(GWP100.25))) +
-  scale_fill_manual(values = c( "#e7298a", "#d95f02", "#1b9e77", "#7570b3"), na.value = "#00000000",
-                    labels = c("1%", "3%", "10%", "25%", " ")) +
-  xlab(" ") +
-  ylab(" ") +
-  theme_bw(base_size = 9) +
-  geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.1,0.4), legend.key.height = unit(0.18, "in"),
-        legend.key.width = unit(0.15, "in"),
-        legend.background = element_rect(fill="#FFFFFF"),
-        plot.margin = margin(t = -0.1, r = 0.1, b = -0.3, l = 0.1, unit = "in")) +
-  labs(fill = "Peatland \nrestored") +
-  annotate("label", x = 20, y = -80, size = 2.5, label = "100-year time horizon")
-
-
-
-plot_grid(top.gwp20, bottom.gwp100, ncol = 1,
-          labels = c("a", "b"))
-
-ggsave(filename = "Figures/Extended_Figures/Top_restoration_areas.png",
-       plot = last_plot(), bg = "white",
-       width = 5, 
-       height = 5.0, 
-       unit = "in",
-       dpi = 300)
-
-
-### Recent drained only
-
-#MC_2010 <- read.csv("Data_sources/Extracted_datafiles/MC_2010.csv")
-
-output <- data %>%
-  dplyr::select(x,y,peatlands, peatland_loss, peatland_loss_2010)
-
-output$mean_MC20 <- rowMeans(MC_2010)     ## emissions in kg CO2e/year/gridcell
-output$norm_20 <- output$mean_MC20/output$peatland_loss_2010   ## emissions in kg CO2e/km2/yr
-
-sort <- arrange(output, norm_20)
-sort <- sort[sort$peatland_loss_2010 > 0,]
-sort$cum_area <- cumsum(sort$peatland_loss)
-sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$GWP100.25 <- ifelse(sort$running_percent < 1, 1, 
-                         ifelse(sort$running_percent < 3, 2,
-                                ifelse(sort$running_percent < 10, 3,
-                                       ifelse(sort$running_percent < 25,4, NA))))
-table(sort$GWP100.25)
-
-  ggplot() +
-  geom_tile(data = sort, aes(x= x, y = y, fill = as.factor(GWP100.25))) +
-  scale_fill_manual(values = c( "#e7298a", "#d95f02", "#1b9e77", "#7570b3"), na.value = "#00000000",
-                    labels = c("1%", "3%", "10%", "25%", " ")) +
-  xlab(" ") +
-  ylab(" ") +
-  theme_bw(base_size = 9) +
-  geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
-  theme(legend.position = c(0.1,0.4), legend.key.height = unit(0.18, "in"),
-        legend.key.width = unit(0.15, "in"),
-        legend.background = element_rect(fill="#FFFFFF"),
-        plot.margin = margin(t = -0.1, r = 0.1, b = -0.3, l = 0.1, unit = "in")) +
-  labs(fill = "Peatland \nrestored") +
-  annotate("label", x = 20, y = -80, size = 2.5, label = "Drained post-2010")
-}
-  
-  
-  
 #### Map - difference in wetland methane emissions 2020-2099
 {
 data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered.csv")
@@ -989,7 +908,7 @@ ggplot() +
          size = 2.5) 
 
 
-ggsave(filename = "Figures/Extended_Figures/Methane_feedback_map.png",
+ggsave(filename = "Figures/Extended_Figures/Methane_feedback_map_v2.png",
        plot = last_plot(), bg = "white",
        width = 5, 
        height = 2.67, 
