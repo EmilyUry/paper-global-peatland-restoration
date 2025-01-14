@@ -67,7 +67,7 @@ ggsave(filename = "Figures/Extended_Figures/EF_bar_plot_v2.png",
 
 
 
-### Extended data figure: map of drained wetland area
+### Extended data figure: map of drained peatland area
 {
 data <- read.csv("Data_sources/Extracted_datafiles/all_Data.csv")
 coasts <- st_read("Data_sources/Coastline/ne_110m_coastline.shp", quiet = TRUE)
@@ -75,30 +75,60 @@ coasts <- st_read("Data_sources/Coastline/ne_110m_coastline.shp", quiet = TRUE)
 ### subset to just the proportion of wetlands in each cell that is peatland
 data$new.wetland.area <- ifelse(data$WA2020 < data$peatlands, data$peatlands, data$WA2020)
 data$peat.frac <- data$peatlands/data$new.wetland.area
+data$peat.percent <- data$peatland/data$cell_area
 
-## subset area of wetland lost to just proportional area of peat
-data$WL_ag <- data$WL_ag*data$peat.frac
-data$WL_ag_re <- data$WL_ag_re*data$peat.frac
-data$WL_for <- data$WL_for*data$peat.frac
-data$WL_for_re <- data$WL_for_re*data$peat.frac
-data$WL_peatx <- data$WL_peatx*data$peat.frac
-data$WL_peatx_re <- data$WL_peatx_re*data$peat.frac
-data$WL_rice<- data$WL_rice*data$peat.frac
-data$WL_rice_re <- data$WL_rice_re*data$peat.frac
+summary(data$peat.percent)
+summary(data$peatlands)
+summary(data$peat.frac)
+data$cuts <- cut(data$peatlands, breaks = c(0, 25, 100, 250, 1000, 3000))
+#data$cuts <- cut(data$peat.frac, breaks = c(0, 0.01, 0.25, 0.5, 0.9, 1.1))
+#data$cuts <- cut(data$peat.percent, breaks = c(0, 0.01, 0.25, 0.5, 0.75, 1))
 
-data$WL_at <- data$WL_ag + data$WL_for + data$WL_peatx + data$WL_rice
-data$WL_re <- data$WL_ag_re + data$WL_for_re + data$WL_peatx_re + data$WL_rice_re
-data$WL_ag_re[data$WL_ag_re < 0] <- 0
+pal <- c("#f7f7f7", "#d1e5f0", "#92c5de", "#4393c3", "#2166ac")
 
-data$cuts <- cut(data$WL_at, breaks = c(0, 0.1, 1, 10, 100, 3000))
-
-pal <- c("#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
 
 options(scipen = 9999)
 S1A <- ggplot() +
   geom_tile(data = data[!is.na(data$cuts),], aes(x= x, y = y, fill = cuts)) +
-  scale_fill_manual(values = pal, na.value = "#00000000", labels = c("0 - 0.1", "0.1 - 1", 
-                                                                     "1 - 10", "10 - 100", "> 100"))+
+  scale_fill_manual(values = pal, na.value = "#00000000", labels = c("< 25", "25 - 100", 
+                                                                     "100-250", "250-1000", "> 1000"))+
+  xlab(" ") +
+  ylab(" ") +
+  theme_bw(base_size = 9) +
+  labs(fill = bquote("Present day \npeatland area "(km^2))) +
+  geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+  scale_size_identity() +
+  theme(legend.position = c(0.14,0.3), legend.key.size = unit(0.18, "in"),
+        plot.margin = margin(t = -0.1, r = 0.1, b = -0.2, l = 0.1, unit = "in"))
+S1A
+
+
+## subset area of wetland lost to just proportional area of peat
+## Peatland lost
+data$PL_ag <- data$WL_ag*data$peat.frac
+data$PL_ag_re <- data$WL_ag_re*data$peat.frac
+data$PL_for <- data$WL_for*data$peat.frac
+data$PL_for_re <- data$WL_for_re*data$peat.frac
+data$PL_peatx <- data$WL_peatx*data$peat.frac
+data$PL_peatx_re <- data$WL_peatx_re*data$peat.frac
+data$PL_rice<- data$WL_rice*data$peat.frac
+data$PL_rice_re <- data$WL_rice_re*data$peat.frac
+
+data$PL_at <- data$PL_ag + data$PL_for + data$PL_peatx + data$PL_rice
+data$PL_re <- data$PL_ag_re + data$PL_for_re + data$PL_peatx_re + data$PL_rice_re
+data$PL_ag_re[data$PL_ag_re < 0] <- 0
+
+summary(data$PL_at)
+data$cuts <- cut(data$PL_at, breaks = c(0, 10, 50, 100, 500, 3000))
+
+pal <- c("#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
+
+filter <- data[data$peatlands > 28.8,] ## cutoff areas with very few peatlands for visual clarity
+options(scipen = 9999)
+S1B <- ggplot() +
+  geom_tile(data = filter[!is.na(filter$cuts),], aes(x= x, y = y, fill = cuts)) +
+  scale_fill_manual(values = pal, na.value = "#00000000", labels = c("< 10", "10-50", 
+                                                                     "50-100", "100-500", "> 500"))+
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 9) +
@@ -107,14 +137,17 @@ S1A <- ggplot() +
   scale_size_identity() +
   theme(legend.position = c(0.12,0.3), legend.key.size = unit(0.18, "in"),
         plot.margin = margin(t = -0.1, r = 0.1, b = -0.2, l = 0.1, unit = "in"))
+S1B
 
 
-data$cuts2 <- cut(data$WL_re, breaks = c(0, 0.1, 1, 10, 100, 1000))
+data$cuts2 <- cut(data$PL_re, breaks = c(0, 1, 5, 10, 50, 3000))
+pal <- c("#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
 
-S1B <- ggplot() +
-  geom_tile(data = data[!is.na(data$cuts2),], aes(x= x, y = y, fill = cuts2)) +
-  scale_fill_manual(values = pal, na.value = "#00000000",labels = c("0 - 0.1", "0.1 - 1", 
-                                                                   "1 - 10", "10 - 100", "> 100"))+
+filter <- data[data$peatlands > 28.8,] ## cutoff areas with very few peatlands for visual clarity
+S1C <- ggplot() +
+  geom_tile(data = filter[!is.na(filter$cuts2),], aes(x= x, y = y, fill = cuts2)) +
+  scale_fill_manual(values = pal, na.value = "#00000000",labels = c("< 1", "1-5", 
+                                                                   "5-10", "10 - 50", "> 50"))+
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 9) +
@@ -124,12 +157,12 @@ S1B <- ggplot() +
   theme(legend.position = c(0.12,0.3), legend.key.size = unit(0.18, "in"),
         plot.margin = margin(t = -0.1, r = 0.1, b = -0.2, l = 0.1, unit = "in"))
 
-plot_grid(S1A, S1B, ncol = 1, labels = c("a", "b"), label_size = 11)
+plot_grid(S1A, S1B, S1C, ncol = 1, labels = c("a", "b", "c"), label_size = 11)
 
 ggsave(filename = "Figures/Extended_Figures/Drained_peatland_v2.png",
        plot = last_plot(), bg = "white",
        width = 5, 
-       height = 5.2, 
+       height = 7.9, 
        unit = "in",
        dpi = 300)
 
