@@ -301,6 +301,9 @@ DW_N2O <- ggplot() +
 #### sum of all three gases
 
 data$DRAINED_GWP20 <- data$DP_CO2 + data$DP_CH4*96 + data$DP_N2O*250 #(Kg CO2e/grid cell)
+sum(data$DP_CO2)*1000 #g/yr
+sum(data$DP_CH4)*1000 #g/yr
+sum(data$DP_N2O)*1000 #g/yr
 sum(data$DRAINED_GWP20)/10^12
 
 summary(data$DRAINED_GWP20/10^6)
@@ -352,6 +355,9 @@ sum(data$REWET_GWP20 - data$DRAINED_GWP20)/10^12
 
 
 data$RESTORE_GWP20 <- data$peatland_loss*(data$CO2_Wetland + data$CH4_Wetland*96 + data$N2O_Wetland*250)  #(Kg CO2e/grid cell)
+sum(data$CO2_Wetland)*1000 #g/yr
+sum(data$CH4_Wetland)*1000 #g/yr
+sum(data$N2O_Wetland)*1000 #g/yr
 sum(data$RESTORE_GWP20)/10^12
 
 summary(data$RESTORE_GWP20/10^6)
