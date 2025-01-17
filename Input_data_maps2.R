@@ -21,7 +21,9 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   
   input$CZ <- as.factor(input$biomes)
   
-  ## adjust wetland area based on peatland area 
+  input$cutoff <- input$cell_area/100
+
+    ## adjust wetland area based on peatland area 
   input$new.wetland.area <- ifelse(input$WA2020 < input$peatlands, input$peatlands, input$WA2020)
   input <- input[input$new.wetland.area > 0,]
   input <- input[!is.na(input$new.wetland.area),]
@@ -52,9 +54,9 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
     summarise(mean_CH4 = mean(CH4_Zhang_2020, na.rm = TRUE),
               sd_CH4 = sd(CH4_Zhang_2020, na.rm = TRUE))
   Intact.CH4
-  ## Boreal:    2364 (5397)
-  ## Temperate: 7112 (28163)
-  ## Tropical:  15720 (38993)
+  ## Boreal:    2321 (5546)
+  ## Temperate: 7153 (28722)
+  ## Tropical:  15563 (38830)
   
   
   ## Methane 2099
@@ -101,7 +103,8 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
     left_join(MC_EF, by = "CZ")
   rm(MC_EF)
   
-  data$CH4_Wetland <- data$CH4_Zhang_2020   
+  data$CH4_Wetland <- data$CH4_Zhang_2020  
+  
   
 }
 
@@ -118,8 +121,8 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   
   pal <- c( "#2166ac", "#4393c3",  '#92c5de', "#d1e5f0", "#e7e7e7")
   
-  ## Filter to just areas of more than 1% peatland (past or present) ### for mapping only
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  ## Filter to just areas of more than 1% peatland (present) ### for mapping only
+  mask <- data[data$peatlands > data$cutoff,]
   
   IW_CO2 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
@@ -140,7 +143,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   data$cuts <- cut(data$CH4_Wetland*data$peatlands/10^6*96, breaks = c(0, 0.001, 1, 10, 100, 1000, Inf))
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   
   IW_CH4 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
@@ -160,7 +163,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   data$cuts <- cut(data$N2O_Wetland*data$peatlands/10^6*250, breaks = c(-100, -10, -1, -0.0001, 0.001, 1, 10, 100, 1000, Inf))
   table(data$cuts)
   pal <- c('#92c5de', "#d1e5f0", "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d",  "#b2182b")
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   
   IW_N2O <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts)) +
@@ -197,7 +200,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   
   IW_GWP20 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
@@ -222,8 +225,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   ### masked to areas of wetlands loss only 
   data <- data[!is.na(data$peatland_loss),]
   data <- data[data$peatland_loss > 0,]
-  
-  
+
   ### CLACULATE CO2/CH4/N2O FLUX DRAINED PEATLANDS (DP) (Kg/grid cell)
   data$DP_CO2 <- data$PL_ag*data$CO2_Ag + data$PL_for*data$CO2_Forest +
     data$PL_peatx*data$CO2_Peatx + data$PL_rice*data$CO2_Rice
@@ -238,8 +240,8 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  ## Filter to just areas of more than 1% peatland (past or present) ### for mapping only
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  ## Filter to just areas of more than 1% peatland (present) ### for mapping only
+  mask <- data[data$peatlands > data$cutoff,]
   
   DW_CO2 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
@@ -259,7 +261,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   
   DW_CH4 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts)) +
@@ -280,7 +282,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c("#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   
   DW_N2O <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts)) +
@@ -308,7 +310,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   
   DW_GWP20 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
@@ -341,7 +343,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RW_CO2 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
     xlab(" ") +
@@ -360,7 +362,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RW_CH4 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts)) +
     xlab(" ") +
@@ -380,7 +382,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   pal <- c("#e7e7e7", "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d")
   
   #### ALL ZEROS
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RW_N2O <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts)) +
     xlab(" ") +
@@ -403,7 +405,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RW_GWP20 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
     xlab(" ") +
@@ -439,7 +441,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   
   pal <- c( "#2166ac", "#4393c3",  '#92c5de', "#d1e5f0", "#e7e7e7")
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RS_CO2 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
     xlab(" ") +
@@ -458,7 +460,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RS_CH4 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
     xlab(" ") +
@@ -477,7 +479,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c('#92c5de', "#d1e5f0", "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d",  "#b2182b")
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RS_N2O <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts)) +
     xlab(" ") +
@@ -502,7 +504,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+  mask <- data[data$peatlands > data$cutoff,]
   RS_GWP20 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
     xlab(" ") +
@@ -564,7 +566,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
             label_size = 9, label_x = 0.2, label_y = 1.3)
   
   
-  ggsave(filename = "Figures/All_inputs_grid2.png",
+  ggsave(filename = "Figures/Extended_Figures/All_inputs_grid3.png",
          plot = last_plot(), bg = "white",
          width = 8, 
          height = 4.8, 
@@ -591,8 +593,8 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   table(data$cuts)
   pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
   
-  mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
-
+  mask <- data[data$peatlands > data$cutoff,]
+  
   DRAINED_GWP20.v2 <- ggplot() +
     geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
     xlab(" ") +
@@ -607,7 +609,7 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
           axis.title = element_text(size = 10, face = 'bold'),
           legend.position = "none", legend.key.height = unit(0.13, "in"),
           plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
-    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained")  
+    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained Peatlands")  
   
   drained_legend <- ggplot() +
     geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
@@ -651,7 +653,7 @@ legend.plot <- ggplot() +
         plot.margin = margin(t = -0.5, r = 0.3, b = -0.6, l = 1, unit = "in")) +
   guides(fill = guide_legend(ncol = 1, title.position = "top"))
 
-mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+mask <- data[data$peatlands > data$cutoff,]
 
 map.restore <- ggplot() +
   geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
@@ -683,7 +685,7 @@ data$cuts <- cut(data$net.rewet/10^6, breaks = c(-Inf, -100, -10, -1, -0.01,
 table(data$cuts)
 pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
 
-mask <- data[data$peatlands > 28.8 | data$peatland_loss > 28.8,]
+mask <- data[data$peatlands > data$cutoff,]
 
 map.rewet <- ggplot() +
   geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
@@ -729,7 +731,7 @@ plot_grid(top, bottom, ncol = 1, rel_heights = c(1,2), labels = c("a", " "),
 
 
 
-ggsave(filename = "Figures/Drained-Rewetted-Restored2.png",
+ggsave(filename = "Figures/Drained-Rewetted-Restored3.png",
        plot = last_plot(), bg = "white",
        width = 5, 
        height = 5.7, 
@@ -755,6 +757,334 @@ pp.sink.rewet ##  The percent of peatland that owuld be NET GHG sinks following 
 
 
 
+
+##### NEW SUPPLEMENTAL FIGURE - NET EMISSIONS DRAINED/RESTORED maps - AREA NORMALIZED
+
+# V1 Gg CO2eq/km2
+{ ## run after extended data figure 1 code
+  
+
+  ## convert units from kg CO2e per grid cell to kg CO2e per km2 peatland
+  summary(data$DRAINED_GWP20/data$peatland_loss/10^6) #Gg/km2
+  data$cuts <- cut(data$DRAINED_GWP20/data$peatland_loss/10^6, breaks = c(0, 1, 2, 3, 4, 5, Inf))
+  table(data$cuts)
+  pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
+  
+  # mask to areas
+  mask <- data[data$peatlands > data$cutoff & data$peatland_loss > 0.01,]
+  
+  DRAINED_GWP20.v2 <- ggplot() +
+    geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< 1",
+                                 "1 - 2", "2 - 3", "3 - 4", "4 - 5", "> 5", " "))+
+    labs(fill = bquote("CO"[2]*"eq. Gg km"^-2*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = "none", legend.key.height = unit(0.13, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained Peatlands")  
+  
+  drained_legend <- ggplot() +
+    geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< 1",
+                                 "1 - 2", "2 - 3", "3 - 4", "4 - 5", "> 5", " "))+
+    labs(fill = bquote("CO"[2]*"eq. Gg km"^-2*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = c(0.4,0.51), legend.key.size = unit(0.11, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained")
+  
+  
+  
+  ###### Restored to intact (area normalized)
+  data$net.restore <- data$RESTORE_GWP20/data$peatland_loss/10^6 - data$DRAINED_GWP20/data$peatland_loss/10^6   #(Kg CO2e/grid cell)
+  summary(data$net.restore)
+  data$cuts <- cut(data$net.restore, breaks = c(-Inf, -5, -1, -0.5, -0.1, 
+                                                0.1, 0.5, 1, 5, 10, Inf))
+  table(data$cuts)
+  pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
+  legend.plot <- ggplot() +
+    geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< -5", "-5 to -1", "-1 to -0.5", "-0.5 to -0.1", "-0.1 to 0.1",
+                                 "0.1 to 0.5", "0.5 to 1", "1 to 5", "5 to 10", "> 10"))+
+    labs(fill = bquote("CO"[2]*"eq. Gg km"^-2*" yr"^-1))+
+    theme(legend.position = c(0.4,0.5), legend.direction="horizontal",
+          legend.title = element_text(size = 8, hjust = 0.5, face = "bold"), 
+          legend.key.size = unit(0.11, "in"),
+          plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          plot.margin = margin(t = -0.5, r = 0.3, b = -0.6, l = 1, unit = "in")) +
+    guides(fill = guide_legend(ncol = 1, title.position = "top"))
+  
+  mask <- data[data$peatlands > data$cutoff & data$peatland_loss > 0.01,]
+  
+  map.restore <- ggplot() +
+    geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< -5", "-5 to -1", "-1 to -0.5", "-0.5 to -0.1", "-0.1 to 0.1",
+                                 "0.1 to 0.5", "0.5 to 1", "1 to 5", "5 to 10", "> 10"))+
+    labs(fill = bquote("CO"[2]*"eq. Gg km"^-2*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = "none", legend.key.height = unit(0.13, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "'Restored to Intact'")
+  
+  
+  subset.negative <- data[data$net.restore < 0,]
+  pp.sink.restore <- sum(subset.negative$peatland_loss)/sum(data$peatland_loss)*100
+  
+  
+  
+  #### Endpoint: Rewetted  
+  data$net.rewet <- data$REWET_GWP20/data$peatland_loss/10^6 - data$DRAINED_GWP20/data$peatland_loss/10^6   #(Gg/km2)
+  summary(data$net.rewet)
+  data$cuts <- cut(data$net.rewet, breaks = c(-Inf, -5, -1, -0.5, -0.1, 
+                                              0.1, 0.5, 1, 5, 10, Inf))
+  table(data$cuts)
+  pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
+  
+  mask <- data[data$peatlands > data$cutoff & data$peatland_loss > 0.01,]
+  
+  map.rewet <- ggplot() +
+    geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< -5", "-5 to -1", "-1 to -0.5", "-0.5 to -0.1", "-0.1 to 0.1",
+                                 "0.1 to 0.5", "0.5 to 1", "1 to 5", "5 to 10", "> 10"))+
+    labs(fill = bquote("CO"[2]*"eq. Gg km"^-2*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = "none", legend.key.height = unit(0.13, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "'Recently Rewetted'")
+  
+  subset.negative <- data[data$net.rewet < 0,]
+  pp.sink.rewet <- sum(subset.negative$peatland_loss)/sum(data$peatland_loss)*100
+  
+  
+  legend <- cowplot::get_legend(drained_legend)
+  
+  legend2 <- cowplot::get_legend(legend.plot)
+  
+  # plot_grid(DRAINED_GWP20.v2, map.rewet, map.restore, legend, ncol = 1, 
+  #           rel_heights = c(1,1,1,0.4),
+  #           labels = c("a", "b", "c"), label_size = 11)
+  
+  top <- plot_grid(DRAINED_GWP20.v2, legend, ncol = 2, 
+                   rel_widths = c(1,0.3),
+                   labels = c(" ", "GHG emissions from\n  drained peatlands"),
+                   label_size = 8, label_x = c(0, -0.5))
+  br <- plot_grid(map.rewet, map.restore, ncol = 1, 
+                  labels = c("b", "c"), label_size = 11)
+  bottom <- plot_grid(br, legend2, nrow = 1, rel_widths = c(1,0.3),
+                      labels = c(" ", " Net change in GHG \nemissions following \npotenital restoration"),
+                      label_size = 8, label_x = -0.5, label_y = 0.85)
+  
+  
+  plot_grid(top, bottom, ncol = 1, rel_heights = c(1,2), labels = c("a", " "), 
+            label_size = 11)
+  
+  
+  
+  ggsave(filename = "Figures/Extended_Figures/Area_norm_emissions.png",
+         plot = last_plot(), bg = "white",
+         width = 5, 
+         height = 5.7, 
+         unit = "in",
+         dpi = 300)
+  
+}
+
+
+# V2 tonnes CO2eq./ha
+{ ## run after extended data figure 1 code
+  
+  
+  ## convert units from kg CO2e per grid cell to kg CO2e per km2 peatland
+  summary(data$DRAINED_GWP20/data$peatland_loss/10^5) #t/ha
+  data$cuts <- cut(data$DRAINED_GWP20/data$peatland_loss/10^5, breaks = c(0, 10, 20, 30, 40, 50, Inf))
+  table(data$cuts)
+  pal <- c( "#e7e7e7", "#fddbc7",  '#f4a582', "#d6604d", "#b2182b", '#67001f')
+  
+  # mask to areas
+  mask <- data[data$peatlands > data$cutoff & data$peatland_loss > 0.01,]
+  
+  DRAINED_GWP20.v2 <- ggplot() +
+    geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< 10",
+                                 "10 - 20", "20 - 30", "30 - 40", "40 - 50", "> 50", " "))+
+    labs(fill = bquote("CO"[2]*"eq. t ha"^-1*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = "none", legend.key.height = unit(0.13, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained Peatlands")  
+  
+  drained_legend <- ggplot() +
+    geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< 10",
+                                 "10 - 20", "20 - 30", "30 - 40", "40 - 50", "> 50", " "))+
+    labs(fill = bquote("CO"[2]*"eq. t ha"^-1*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = c(0.4,0.51), legend.key.size = unit(0.11, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "Drained")
+  
+  
+  
+  ###### Restored to intact (area normalized)
+  data$net.restore <- data$RESTORE_GWP20/data$peatland_loss/10^5 - data$DRAINED_GWP20/data$peatland_loss/10^5   #(t CO2e/ha)
+  summary(data$net.restore)
+  data$cuts <- cut(data$net.restore, breaks = c(-Inf, -50, -10, -5, -1, 
+                                                1, 5, 10, 50, 100, Inf))
+  table(data$cuts)
+  pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
+  legend.plot <- ggplot() +
+    geom_tile(data = data, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< -50", "-50 to -10", "-10 to -5", "-5 to -1", "-1 to 1",
+                                 "1 to 5", "5 to 10", "10 to 50", "50 to 100", "> 100"))+
+    labs(fill = bquote("CO"[2]*"eq. t ha"^-1*" yr"^-1))+
+    theme(legend.position = c(0.4,0.5), legend.direction="horizontal",
+          legend.title = element_text(size = 8, hjust = 0.5, face = "bold"), 
+          legend.key.size = unit(0.11, "in"),
+          plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          plot.margin = margin(t = -0.5, r = 0.3, b = -0.6, l = 1, unit = "in")) +
+    guides(fill = guide_legend(ncol = 1, title.position = "top"))
+  
+  mask <- data[data$peatlands > data$cutoff & data$peatland_loss > 0.01,]
+  
+  map.restore <- ggplot() +
+    geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< -50", "-50 to -10", "-10 to -5", "-5 to -1", "-1 to 1",
+                                 "1 to 5", "5 to 10", "10 to 50", "50 to 100", "> 100"))+
+    labs(fill = bquote("CO"[2]*"eq. t ha"^-1*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = "none", legend.key.height = unit(0.13, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "'Restored to Intact'")
+  
+  
+  subset.negative <- data[data$net.restore < 0,]
+  pp.sink.restore <- sum(subset.negative$peatland_loss)/sum(data$peatland_loss)*100
+  
+  
+  
+  #### Endpoint: Rewetted  
+  data$net.rewet <- data$REWET_GWP20/data$peatland_loss/10^5 - data$DRAINED_GWP20/data$peatland_loss/10^5   #(Gg/km2)
+  summary(data$net.rewet)
+  data$cuts <- cut(data$net.rewet, breaks = c(-Inf, -50, -10, -5, -1, 
+                                              1, 5, 10, 50, 100, Inf))
+  table(data$cuts)
+  pal <- c("#2166ac", "#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d", "#b2182b", '#67001f')
+  
+  mask <- data[data$peatlands > data$cutoff & data$peatland_loss > 0.01,]
+  
+  map.rewet <- ggplot() +
+    geom_tile(data = mask, aes(x= x, y = y, fill = cuts))+
+    xlab(" ") +
+    ylab(" ") +
+    theme_bw(base_size = 7) +
+    geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
+    scale_fill_manual(values = pal, na.value = "#00000000",
+                      labels = c("< -50", "-50 to -10", "-10 to -5", "-5 to -1", "-1 to 1",
+                                 "1 to 5", "5 to 10", "10 to 50", "50 to 100", "> 100"))+
+    labs(fill = bquote("CO"[2]*"eq. t ha"^-1*" yr"^-1))+
+    theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold"), 
+          axis.title = element_text(size = 10, face = 'bold'),
+          legend.position = "none", legend.key.height = unit(0.13, "in"),
+          plot.margin = margin(t = -0.5, r = 0.1, b = -0.6, l = 0.1, unit = "in")) +
+    annotate("label", x = 20, y = -80, size = 2.5, label = "'Recently Rewetted'")
+  
+  subset.negative <- data[data$net.rewet < 0,]
+  pp.sink.rewet <- sum(subset.negative$peatland_loss)/sum(data$peatland_loss)*100
+  
+  
+  legend <- cowplot::get_legend(drained_legend)
+  
+  legend2 <- cowplot::get_legend(legend.plot)
+  
+  # plot_grid(DRAINED_GWP20.v2, map.rewet, map.restore, legend, ncol = 1, 
+  #           rel_heights = c(1,1,1,0.4),
+  #           labels = c("a", "b", "c"), label_size = 11)
+  
+  top <- plot_grid(DRAINED_GWP20.v2, legend, ncol = 2, 
+                   rel_widths = c(1,0.3),
+                   labels = c(" ", "GHG emissions from\n  drained peatlands"),
+                   label_size = 8, label_x = c(0, -0.5))
+  br <- plot_grid(map.rewet, map.restore, ncol = 1, 
+                  labels = c("b", "c"), label_size = 11)
+  bottom <- plot_grid(br, legend2, nrow = 1, rel_widths = c(1,0.3),
+                      labels = c(" ", " Net change in GHG \nemissions following \npotenital restoration"),
+                      label_size = 8, label_x = -0.5, label_y = 0.85)
+  
+  
+  plot_grid(top, bottom, ncol = 1, rel_heights = c(1,2), labels = c("a", " "), 
+            label_size = 11)
+  
+  
+  
+  ggsave(filename = "Figures/Extended_Figures/Area_norm_emissions_v2.png",
+         plot = last_plot(), bg = "white",
+         width = 5, 
+         height = 5.7, 
+         unit = "in",
+         dpi = 300)
+  
+}
+
+
+
+## Figures made in this script
+## (Figure S1) 4x4 grid of all emissions
+## (Figure 1)  Drained-rewetted-restored - three panel plot
+## (Figure S2) Drained-rewetted-restored - area normalized
 
 
 
