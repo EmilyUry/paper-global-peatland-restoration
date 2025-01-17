@@ -697,14 +697,6 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
   }
   
   
-  # ## Pivot data to long format and find mean for each % restoration
-  # S1_long <- S1 %>% pivot_longer(everything(), names_to = "series", values_to = "val")
-  # S1_long$x <- rep(1:100, each = n)
-  # #mean
-  # S1.mean <- rowMeans(S1)
-  # Vstat <- data.frame(x, S1.mean)
-  
-  
   ## Random restoration (rr) -- shuffle output of monte carlo for random draw
   rr <- data.frame(matrix(NA, ncol = 1, nrow = 100))[-1]
   set.seed(123)
@@ -725,7 +717,8 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
     print(Sys.time())
   }
   
-  #Vstat$rr.mean <- rowMeans(rr)
+  Vstat$rr.mean100 <- rowMeans(rr)
+  Vstat$S1.mean100 <- rowMeans(S1)
   
   
   ## pivot longer to creat a figure with all MCs as a line
@@ -743,6 +736,8 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
 
   S1_rr100 <- rbind(rr100_long, S100_long )
   
+  options(scipen = 9999)
+  
   top.left <- ggplot(S1_rr100, aes(x = percent, y = val)) + 
     geom_line( aes(group = series, color = strategy), lwd = 0.3) +
     scale_color_manual(values = c("#25252515", "#ff000015" )) +
@@ -752,8 +747,8 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
           panel.grid.minor = element_blank(), 
           legend.position = 'none') +
     geom_hline(yintercept = 0, linetype = 2) +
-    geom_line(data = Vstat, aes(x = x, y = rr.mean), color = "#bf0404", lwd = 1) +
-    geom_line(data = Vstat, aes(x = x, y = S1.mean), color = "black", lwd = 1) +
+    geom_line(data = Vstat, aes(x = x, y = rr.mean100), color = "#bf0404", lwd = 1) +
+    geom_line(data = Vstat, aes(x = x, y = S1.mean100), color = "black", lwd = 1) +
     ylab(bquote("GHG emissions (Pg CO"[2]*"eq. yr"^{-1}*")")) +
     xlab("Drained peatland restored (%)") +
     ylim(-3,0.2) +
@@ -922,7 +917,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
   
   metrics <- as.data.frame(t(matrix(c("net GHG, restora all, SGWP20", restore_all_SGWP20,
                                       "SD^", sd_restore_all_SGWP20, 
-                                      "net GHG, restore all, SGWO100", restore_all_SGWP100, 
+                                      "net GHG, restore all, SGWP100", restore_all_SGWP100, 
                                       "SD^", sd_restore_all_SGWP100), nrow = 2)))
   metrics
   
