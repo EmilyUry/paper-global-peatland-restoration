@@ -522,6 +522,8 @@ setwd("C:/Users/eury/OneDrive - Environmental Defense Fund - edf.org/Wetland-Res
   
   summary(data$RESTORE_GWP20/10^6)
   
+  
+  ## restored to intact percent sink vs source
   subset.negative <- data[data$RESTORE_GWP20 < 0,]
   pp.sink <- sum(subset.negative$peatland_loss)/sum(data$peatland_loss)*100
   subset.positive <- data[data$RESTORE_GWP20 > 0,]
