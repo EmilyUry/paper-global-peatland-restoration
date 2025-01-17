@@ -932,12 +932,14 @@ summary
 {
 
 output <- data %>%
-  dplyr::select(x,y,peatlands, peatland_loss, N_fert, flood)
+  dplyr::select(x,y, cell_area, peatlands, peatland_loss, N_fert, flood)
 output$mean_MC <- rowMeans(MC_SGWP20)     ## emissions in kg CO2e/year/gridcell
 output$norm <- output$mean_MC/output$peatland_loss   ## emissions in kg CO2e/km2/yr
 
-## restrict priority areas to places with greater that 1% peatland coverage
-output <- output[output$peatlands > 28.8 | output$peatland_loss > 28.8,]
+output$cutoff <- output$cell_area/100
+
+## restrict priority areas to places with greater that 1% peatland coverage and more than 1ha peatland loss
+output <- output[output$peatlands > output$cutoff & output$peatland_loss > 0.01,]
 
 
 #### CARBON FIRST
@@ -982,24 +984,28 @@ map.top <- ggplot() +
 
 ## metrics
 table(map.filter$intersect)
-# 1 = both fertilizer and climate  ##175
-# 2 = both flood and climate  # 960
-# 3 = all three              ## 202
+# 1 = both fertilizer and climate  ##173
+# 2 = both flood and climate  # 745
+# 3 = all three              ## 172
 
-960/175   ## 5.49
+745/173   ## 4.3
 
 
 
 
 
 #### map, methane now vs methane future
+data$CH4_feedback <- data$CH4_Zhang_2099 - data$CH4_Zhang_2020
+
 output <- data %>%
-  dplyr::select(x,y,peatlands, peatland_loss, CH4_feedback)
+  dplyr::select(x,y, cell_area, peatlands, peatland_loss, CH4_feedback)
 output$mean_MC <- rowMeans(MC_SGWP20)     ## emissions in kg CO2e/year/gridcell
 output$norm <- output$mean_MC/output$peatland_loss   ## emissions in kg CO2e/km2/yr
 output$mean_MC_2099 <- rowMeans(MC_2099)     ## emissions in kg CO2e/year/gridcell
-output$norm_2099 <- output$mean_MC_2099/output$peatland_loss  
-output <- output[output$peatlands > 28.8 | output$peatland_loss > 28.8,]
+output$norm_2099 <- output$mean_MC_2099/output$peatland_loss 
+
+output$cutoff <- output$cell_area/100
+output <- output[output$peatlands > output$cutoff & output$peatland_loss > 0.01,]
 
 df <- output
 
