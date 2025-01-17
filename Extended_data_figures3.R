@@ -77,6 +77,8 @@ data$new.wetland.area <- ifelse(data$WA2020 < data$peatlands, data$peatlands, da
 data$peat.frac <- data$peatlands/data$new.wetland.area
 data$peat.percent <- data$peatland/data$cell_area
 
+data$cutoff <- data$cell_area/100
+
 summary(data$peat.percent)
 summary(data$peatlands)
 summary(data$peat.frac)
@@ -123,7 +125,7 @@ data$cuts <- cut(data$PL_at, breaks = c(0, 10, 50, 100, 500, 3000))
 
 pal <- c("#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
 
-filter <- data[data$peatlands > 28.8,] ## cutoff areas with very few peatlands for visual clarity
+filter <- data[data$peatlands > data$cutoff,] ## cutoff areas with very few peatlands for visual clarity
 options(scipen = 9999)
 S1B <- ggplot() +
   geom_tile(data = filter[!is.na(filter$cuts),], aes(x= x, y = y, fill = cuts)) +
@@ -143,7 +145,7 @@ S1B
 data$cuts2 <- cut(data$PL_re, breaks = c(0, 1, 5, 10, 50, 3000))
 pal <- c("#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
 
-filter <- data[data$peatlands > 28.8,] ## cutoff areas with very few peatlands for visual clarity
+filter <- data[data$peatlands > data$cutoff,] ## cutoff areas with very few peatlands for visual clarity
 S1C <- ggplot() +
   geom_tile(data = filter[!is.na(filter$cuts2),], aes(x= x, y = y, fill = cuts2)) +
   scale_fill_manual(values = pal, na.value = "#00000000",labels = c("< 1", "1-5", 
@@ -256,6 +258,7 @@ ggsave(filename = "Figures/Extended_Figures/Aux_data_inputs_v3.png",
 data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered3.csv")
 MC_2010 <- read.csv("Data_sources/Extracted_datafiles/MC_2010_3.csv")
 
+data$cutoff <- data$cell_area/100
 
 ## Carbon first 
 output <- data %>%
@@ -392,13 +395,21 @@ top
 
 
 output <- data %>%
-  dplyr::select(x,y,peatlands, peatland_loss_2010, N_fert, flood)
+  dplyr::select(x,y, cell_area, peatlands, peatland_loss_2010, N_fert, flood)
 output$mean_MC <- rowMeans(MC_2010)     ## emissions in kg CO2e/year/gridcell
 output$norm <- output$mean_MC/output$peatland_loss_2010   ## emissions in kg CO2e/km2/yr
+
+output$cutoff <- output$cell_area/100
+
+## restrict priority areas to places with greater that 1% peatland coverage and more than 1ha peatland loss
+output <- output[output$peatlands > output$cutoff & output$peatland_loss > 0.01,]
+
 
 #### CARBON FIRST
 df <- output
 df <- output[df$peatland_loss_2010 > 0,]
+
+
 
 sort <- arrange(df, norm)
 sort$cum_area <- cumsum(sort$peatland_loss_2010)
@@ -422,7 +433,8 @@ sort$intersect <- ifelse(sort$carbon.top == 1 & sort$flood.top == 1 & sort$fert.
                          ifelse(sort$fert.top == 1 & sort$carbon.top == 1 , 1,
                                 ifelse(sort$flood.top == 1 & sort$carbon.top == 1 , 2, NA)))
 map.filter <- sort[!is.na(sort$intersect),]
-map.filter <- map.filter[map.filter$peatlands > 28.8,] ## cutoff areas with very few peatlands for visual clarity
+#map.filter <- map.filter[map.filter$peatlands > map.filter$cutoff,] ## cutoff areas with very few peatlands for visual clarity
+
 
 map.bottom <- ggplot() +
   geom_tile(data = map.filter, aes(x= x, y = y, height=0.7, width=0.7, fill = as.factor(intersect))) +
@@ -846,7 +858,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
   coasts <- st_read("Data_sources/Coastline/ne_110m_coastline.shp", quiet = TRUE)
   
   output <- data %>%
-    dplyr::select(x,y,peatlands, peatland_loss)
+    dplyr::select(x,y, cell_area, peatlands, peatland_loss)
   
   output$mean_MC20 <- rowMeans(MC_SGWP20)     ## emissions in kg CO2e/year/gridcell
   output$norm_20 <- output$mean_MC20/output$peatland_loss   ## emissions in kg CO2e/km2/yr
@@ -854,7 +866,10 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
   output$mean_MC100 <- rowMeans(MC_SGWP100)     ## emissions in kg CO2e/year/gridcell
   output$norm_100 <- output$mean_MC100/output$peatland_loss   ## emissions in kg CO2e/km2/yr
   
-  output <- output[output$peatlands > 28.8,] ## cutoff areas with very few peatlands for visual clarity
+  output$cutoff <- output$cell_area/100
+  ## restrict priority areas to places with greater that 1% peatland coverage and more than 1ha peatland loss
+  output <- output[output$peatlands > output$cutoff & output$peatland_loss > 0.01,]
+  
   
   sort <- arrange(output, norm_20)
   sort$cum_area <- cumsum(sort$peatland_loss)
@@ -916,12 +931,14 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
 
 
 
-#### Map - difference in wetland methane emissions 2020-2099
+#### Map - difference in peatland methane emissions 2020-2099
 {
 data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered3.csv")
 coasts <- st_read("Data_sources/Coastline/ne_110m_coastline.shp", quiet = TRUE)
   
 output <- data
+output$cutoff <- output$cell_area/100
+
 
 output$feedback <- output$CH4_Wetland_2099 - output$CH4_Wetland
 summary(output$feedback/10^3)  ## Gg CO2e/km2/yr
@@ -929,7 +946,7 @@ output$cuts <- cut(output$feedback/10^3, breaks = c(-Inf, -10, -1, -0.1, 0.1, 1,
 table(output$cuts)
 pal <- c("#4393c3", '#92c5de', "#d1e5f0",  "#e7e7e7", "#fddbc7", '#f4a582', "#d6604d")
 
-output <- output[output$peatlands > 28.8,] ## cutoff areas with very few peatlands for visual clarity
+output <- output[output$peatlands > output$cutoff,] ## cutoff areas with very few peatlands for visual clarity
 
 ggplot() +
   geom_tile(data = output, aes(x= x, y = y, fill = cuts)) +
