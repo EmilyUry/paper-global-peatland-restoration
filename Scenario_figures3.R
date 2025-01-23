@@ -948,17 +948,17 @@ df <- output
 sort <- arrange(df, norm)
 sort$cum_area <- cumsum(sort$peatland_loss)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$carbon.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$carbon.top <- ifelse(sort$running_percent < 30, 1, 0)
 #### N first
 sort <- arrange(sort, desc(N_fert))
 sort$cum_area <- cumsum(sort$peatland_loss)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$fert.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$fert.top <- ifelse(sort$running_percent < 30, 1, 0)
 #### Flood first
 sort <- arrange(sort, desc(flood))
 sort$cum_area <- cumsum(sort$peatland_loss)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$flood.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$flood.top <- ifelse(sort$running_percent < 30, 1, 0)
 
 
 ## map
@@ -984,11 +984,11 @@ map.top <- ggplot() +
 
 ## metrics
 table(map.filter$intersect)
-# 1 = both fertilizer and climate  ##173
-# 2 = both flood and climate  # 745
-# 3 = all three              ## 172
+# 1 = both fertilizer and climate  ##287
+# 2 = both flood and climate  # 902
+# 3 = all three              ## 254
 
-745/173   ## 4.3
+902/287   ## 3.1
 
 
 
@@ -1022,7 +1022,7 @@ sort$carbon.top <- ifelse(sort$running_percent < 25, 1, 0)
 sort <- arrange(sort, norm_2099)
 sort$cum_area <- cumsum(sort$peatland_loss)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-sort$future.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$future.top <- ifelse(sort$running_percent < 30, 1, 0)
 
 sort$intersect <- ifelse(sort$carbon.top == 1 & sort$future.top == 1, 1,
                          ifelse(sort$carbon.top == 1 , 3,

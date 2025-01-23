@@ -414,17 +414,17 @@ df <- output[df$peatland_loss_2010 > 0,]
 sort <- arrange(df, norm)
 sort$cum_area <- cumsum(sort$peatland_loss_2010)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss_2010, na.rm = TRUE)*100
-sort$carbon.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$carbon.top <- ifelse(sort$running_percent < 30, 1, 0)
 #### N first
 sort <- arrange(sort, desc(N_fert))
 sort$cum_area <- cumsum(sort$peatland_loss_2010)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss_2010, na.rm = TRUE)*100
-sort$fert.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$fert.top <- ifelse(sort$running_percent < 30, 1, 0)
 #### Flood first
 sort <- arrange(sort, desc(flood))
 sort$cum_area <- cumsum(sort$peatland_loss_2010)
 sort$running_percent <- sort$cum_area/sum(sort$peatland_loss_2010, na.rm = TRUE)*100
-sort$flood.top <- ifelse(sort$running_percent < 25, 1, 0)
+sort$flood.top <- ifelse(sort$running_percent < 30, 1, 0)
 
 
 ## map
@@ -875,7 +875,7 @@ ggsave(filename = "Figures/Extended_Figures/S5_Rewet_v_random_v3.png",
   sort <- arrange(sort, norm_100)
   sort$cum_area <- cumsum(sort$peatland_loss)
   sort$running_percent <- sort$cum_area/sum(sort$peatland_loss, na.rm = TRUE)*100
-  sort$GWP100.top <- ifelse(sort$running_percent < 25, 1, 0)
+  sort$GWP100.top <- ifelse(sort$running_percent < 30, 1, 0)
   sort$map <- ifelse(sort$GWP20.top == 1 & sort$GWP100.top == 1, 1,
                      ifelse(sort$GWP100.top == 1 & sort$GWP20.top == 0, 2,
                             ifelse(sort$GWP20.top == 1 & sort$GWP100.top == 0, 3, NA)))
