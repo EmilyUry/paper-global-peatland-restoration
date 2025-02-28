@@ -10,6 +10,7 @@ library(ggplot2)
 library(tidyverse)
 library(sf)
 library(cowplot)
+library(raster)
 
 ###
 
@@ -176,9 +177,10 @@ ggsave(filename = "Figures/Extended_Figures/Drained_peatland_v3.png",
 
 {
 ### Biomes
-
+  
 biomes <- raster("Data_sources/Extracted_datafiles/Koppen_CZ_classified.tif")
 map <- as.data.frame(biomes, xy = TRUE)
+coasts <- st_read("Data_sources/Coastline/ne_110m_coastline.shp", quiet = TRUE)
 
 CZ <- ggplot() +
   geom_raster(data = map, aes(x= x, y = y, fill = as.factor(Koppen_CZ_classified))) +
@@ -196,6 +198,7 @@ CZ <- ggplot() +
 
 
 ### Figure S3. Global N fertilizer application map
+data <- read.csv("Data_sources/Extracted_datafiles/all_Data.csv")
 
 ### global N input  in kg/ha
 data$cuts <- cut(data$N_fert, breaks = c(0, 5, 25, 50, 100, 200))
@@ -231,7 +234,7 @@ FR <- ggplot() +
   xlab(" ") +
   ylab(" ") +
   theme_bw(base_size = 9) +
-  labs(fill = "100-year flood \n risk (% area)") +
+  labs(fill = "100-year flood \n hazard (% area)") +
   geom_sf(data = coasts, color = "gray50", fill = NA,linewidth = 0.25) +
   scale_size_identity() +
   theme(legend.position = c(0.12,0.31), legend.key.size = unit(0.18, "in"),
