@@ -586,7 +586,7 @@ FIG.B <- ggplot(fig.b, aes(x = percent, y = val)) +
   ylab(bquote("GHG emissions (Pg CO"[2]*"eq. yr"^{-1}*")")) +
   xlab("Peatland restored (%)") +
   annotate("text", x = 30, y = -2, size = 3, label = "Climate first") +
-  annotate("text", x = 30, y = 0.5, size = 3, col = "#2b6a78", label = "Flood risk first")
+  annotate("text", x = 30, y = 0.5, size = 3, col = "#2b6a78", label = "Flood first")
 
 fig.c <- rbind(fig_long, feedback_long)
 FIG.C <- ggplot(fig.c, aes(x = percent, y = val)) + 
@@ -1033,7 +1033,7 @@ filter <- sort[!is.na(sort$intersect),]
 ## old purple #54246b, new purple #8d28bd
 map.bottom <- ggplot() +
   geom_tile(data = filter, aes(x= x, y = y, height=1.2, width=1.2, fill = as.factor(intersect))) +   ### exagerated pixel size for visual clarity
-  scale_fill_manual(values = c( "#dedede55", "#8d28bd", "#454545"), na.value = "#00000000",
+  scale_fill_manual(values = c( "#cccccc", "#8d28bd", "#333333"), na.value = "#00000000",
                     labels = c("Minimize emissions,\nboth timelines", "Minimize future \nemissions", "Minimize near-term \nemissions")) +
   xlab(" ") +
   ylab(" ") +
@@ -1049,7 +1049,7 @@ map.bottom <- ggplot() +
 
 plot_grid(map.top, map.bottom, nrow = 2, labels = c("a", "b"), label_size = 12)
 
-ggsave(filename = "Figures/Multi-objective-maps_v3.png",
+ggsave(filename = "Figures/Multi-objective-maps_v4.png",
        plot = last_plot(), bg = "white",
        width = 3.5*2, 
        height = 3.4*2, 
@@ -1169,7 +1169,33 @@ sum(temp.rice$WL_rice)
 
 
 
+### other metrics
+
+data <- read.csv("Data_sources/Extracted_datafiles/Data_filtered3.csv")
+data$restore20_norm <- data$Restore20_net/data$peatland_loss
+data$rewet20_norm <- data$Rewet20_net/data$peatland_loss
+hist(data$restore20_norm, breaks = 500)
+hist(data$rewet20_norm, breaks = 500)
+mean(data$restore20_norm)/1000
+
+data$restore20_norm_t_ha <- data$restore20_norm/1000/100
+data$rewet20_norm_t_ha <- data$rewet20_norm/1000/100
+
+quantile(data$restore20_norm_t_ha, c(0.25, 0.50, 0.75))
+quantile(data$restore20_norm_t_ha, c(0.05, 0.50, 0.95))
+quantile(data$restore20_norm_t_ha, c(0.01, 0.50, 0.99))
+quantile(data$restore20_norm_t_ha, c(0.0, 0.50, 1))
+
+quantile(data$rewet20_norm_t_ha, c(0.25, 0.50, 0.75))
+quantile(data$rewet20_norm_t_ha, c(0.05, 0.50, 0.95))
+quantile(data$rewet20_norm_t_ha, c(0.01, 0.50, 0.99))
+quantile(data$rewet20_norm_t_ha, c(0.0, 0.50, 1))
 
 
+filter <- data[data$peatland_loss >10,]
+filter$restore20_norm <- filter$Restore20_net/filter$peatland_loss
+filter$rewet20_norm <- filter$Rewet20_net/filter$peatland_loss
+hist(filter$restore20_norm, breaks = 500)
+hist(filter$rewet20_norm, breaks = 500)
 
-
+mean(filter$restore20_norm)
